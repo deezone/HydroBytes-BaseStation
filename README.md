@@ -1,2 +1,2 @@
-# HydroBytes-Server
-A wifi network access point server for an automated garden. The server coordinates the connected systems to provide man aged solution that is traditionally a labour intensive process.
+# HydroBytes-BaseStation
+The Base Station is a part of a collection of systems called "[HydroBytes](https://github.com/deezone/HydroBytes)" that uses micro controllers to manage and monitor plant health in an automated garden.
