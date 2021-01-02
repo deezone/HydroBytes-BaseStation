@@ -1,9 +1,15 @@
 # HydroBytes-BaseStation
-The Base Station is a part of a collection of systems called "[HydroBytes](https://github.com/deezone/HydroBytes)" that uses micro controllers to manage and monitor plant health in an automated garden.
+The Base Station is a part of a collection of systems called
+"[HydroBytes](https://github.com/deezone/HydroBytes)" that uses micro
+controllers to manage and monitor plant health in an automated garden.
 
 ## Introduction
 
-The "garden" is simply a backyard patio in Brooklyn, New York. Typically there are only two seasons - cold and hot in New York City. By automating an urban garden ideally the space will thrive with minimum supervision. The amount of effort to automate is besides the point, everyone needs their vices.
+The "garden" is simply a backyard patio in Brooklyn, New York. Typically
+there are only two seasons - cold and hot in New York City. By
+automating an urban garden ideally the space will thrive with minimum
+supervision. The amount of effort to automate is besides the point,  
+everyone needs their vices.
 
 - **[Water Management Station](https://github.com/deezone/HydroBytes-WaterManagement)**
 - **Base Station**
