@@ -2,7 +2,7 @@
 # docker-compose up
 # docker-compose stop
 # docker-compose down
-version: '3'
+version: "3.1"
 
 networks:
   shared-network:
@@ -15,6 +15,9 @@ services:
     container_name: base_station_db
     networks:
       - shared-network
-    image: postgres:13.1-alpine
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: example
     ports:
       - 5432:5432
