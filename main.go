@@ -2,16 +2,28 @@ package main
 
 import (
 	// Standard packages
-	"context"   // https://golang.org/pkg/context/
-	"fmt"       // https://golang.org/pkg/fmt/
-	"log"       // https://golang.org/pkg/log/
-	"math/rand"
-	"net/http"  // https://golang.org/pkg/net/http/
+	"context"       // https://golang.org/pkg/context/
+	"encoding/json" // https://golang.org/pkg/encoding/json/
+	"log"           // https://golang.org/pkg/log/
+	"net/http"      // https://golang.org/pkg/net/http/
 	"os"
-	"os/signal" // https://golang.org/src/os/signal/doc.go
+	"os/signal"     // https://golang.org/src/os/signal/doc.go
 	"syscall"
 	"time"
 )
+
+/**
+ * StationTypes is a type of station in the automated garden system.
+ *
+ * Note: use of "stuct tags" (ex: `json:"id"`) to manage the names of properties to be lowercase and snake_case. Due to
+ * the use of case for visibility in Go "id" rather and "Id" would result in the value being excluded in the JSON
+ * response as the encoding/json package is external to this package.
+ */
+type StationTypes struct {
+	Id			int    `json:"id"`
+	Name		string `json:"name"`
+	Description	string `json:"description"`
+}
 
 // Main entry point for program.
 func main() {
@@ -34,7 +46,7 @@ func main() {
 	// Start API Service
 
 	/**
-	 * Convert the Echo function to a type that implements http.Handler
+	 * Convert the ListStationTypes function to a type that implements http.Handler
 	 * See https://education.ardanlabs.com/courses/take/ultimate-syntax/lessons/13570357-type-conversions for details
 	 * on "types" and conversions.
 	 *
@@ -48,7 +60,7 @@ func main() {
 	 */
 	api := http.Server{
 		Addr:         "localhost:8000",
-		Handler:      http.HandlerFunc(Echo),
+		Handler:      http.HandlerFunc(ListStationTypes),
 		ReadTimeout:  readTimeout,
 		WriteTimeout: writeTimeout,
 	}
@@ -58,7 +70,7 @@ func main() {
 	//
 	serverErrors := make(chan error, 1)
 
-	// Start a server listening ("bind") on port 8000 and responding using handler called Echo() as defined below
+	// Start a server listening ("bind") on port 8000 and responding using handler called ListStationTypes()
 	// https://golang.org/pkg/net/http/#Server.ListenAndServe
 	go func() {
 		log.Printf("main : API listening on %s", api.Addr)
@@ -110,24 +122,35 @@ func main() {
 }
 
 /**
- * Echo is a basic HTTP Handler.
- * Also know as a "controller" in the MVC pattern
+ * ListStationTypes is a basic HTTP Handler that lists all of the station types in the HydroByte Automated Garden system.
+ * A Handler is also know as a "controller" in the MVC pattern.
  *
  * The parameters must follow the signature defined in the http.HandlerFunc() adapter
  * (https://golang.org/src/net/http/server.go?s=97511:97566#L2034) to convert this method into a HTTP handler type.
  *
- * If you open localhost:8000 in your browser, you may notice double requests being made. This happens because the
- * browser sends a request in the background for a website favicon. More the reason to use Postman to test!
+ * Note: If you open localhost:8000 in your browser, you may notice double requests being made. This happens because
+ * the browser sends a request in the background for a website favicon. More the reason to use Postman to test!
  */
-func Echo(w http.ResponseWriter, r *http.Request) {
+func ListStationTypes(w http.ResponseWriter, r *http.Request) {
+	list := []StationTypes{
+		{Id: 1, Name: "Base", Description: "Coordinator for all station types - monitor, command and control. Access point to public Intenet."},
+		{Id: 2, Name: "Water", Description: "Management of water resources. Controls water levels in resavour and impliments irrigation."},
+		{Id: 3, Name: "Plant", Description: "Monitors and reports plant health."},
+	}
 
-	// Print a random number at the beginning and end of each request.
-	n := rand.Intn(1000)
-	log.Println("start", n)
-	defer log.Println("end", n)
+	// https://golang.org/pkg/encoding/json/#Marshal
+	data, err := json.Marshal(list)
+	if err != nil {
+		log.Println("error marshalling result", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
-	// Simulate a long-running request.
-	time.Sleep(3 * time.Second)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
 
-	fmt.Fprintf(w, "You asked to %s %s\n", r.Method, r.URL.Path)
+	// https://golang.org/pkg/net/http/#Request.Write
+	if _, err := w.Write(data); err != nil {
+		log.Println("error writing result", err)
+	}
 }
