@@ -2,14 +2,19 @@ package main
 
 import (
 	// Standard packages
-	"context"       // https://golang.org/pkg/context/
-	"encoding/json" // https://golang.org/pkg/encoding/json/
-	"log"           // https://golang.org/pkg/log/
-	"net/http"      // https://golang.org/pkg/net/http/
+	"context"               // https://golang.org/pkg/context/
+	"encoding/json"         // https://golang.org/pkg/encoding/json/
+	"log"                   // https://golang.org/pkg/log/
+	"net/http"              // https://golang.org/pkg/net/http/
+	"net/url"
 	"os"
-	"os/signal"     // https://golang.org/src/os/signal/doc.go
+	"os/signal"             // https://golang.org/src/os/signal/doc.go
 	"syscall"
 	"time"
+
+	// Third-party packages
+	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"  // https://pkg.go.dev/github.com/lib/pq
 )
 
 /**
@@ -41,6 +46,15 @@ func main() {
 
 	log.Printf("main : Started")
 	defer log.Println("main : Completed")
+
+	// =========================================================================
+	// Start Database
+
+	db, err := openDB()
+	if err != nil {
+		log.Fatalf("error: connecting to db: %s", err)
+	}
+	defer db.Close()
 
 	// =========================================================================
 	// Start API Service
@@ -153,4 +167,24 @@ func ListStationTypes(w http.ResponseWriter, r *http.Request) {
 	if _, err := w.Write(data); err != nil {
 		log.Println("error writing result", err)
 	}
+}
+
+/**
+ * https://golang.org/pkg/database/sql/
+ * Supported drivers: https://github.com/golang/go/wiki/SQLDrivers
+ */
+func openDB() (*sqlx.DB, error) {
+	q := url.Values{}
+	q.Set("sslmode", "disable")
+	q.Set("timezone", "utc")
+
+	u := url.URL{
+		Scheme:   "postgres",
+		User:     url.UserPassword("postgres", "postgres"),
+		Host:     "localhost",
+		Path:     "postgres",
+		RawQuery: q.Encode(),
+	}
+
+	return sqlx.Open("postgres", u.String())
 }
