@@ -4,13 +4,17 @@ import (
 	// Standard packages
 	"context"               // https://golang.org/pkg/context/
 	"encoding/json"         // https://golang.org/pkg/encoding/json/
-	"log"                   // https://golang.org/pkg/log/
-	"net/http"              // https://golang.org/pkg/net/http/
+	"flag"
+	"log"      // https://golang.org/pkg/log/
+	"net/http" // https://golang.org/pkg/net/http/
 	"net/url"
 	"os"
 	"os/signal"             // https://golang.org/src/os/signal/doc.go
 	"syscall"
 	"time"
+
+	// Applcation packages
+	"github.com/deezone/HydroBytes-BaseStation/schema"
 
 	// Third-party packages
 	"github.com/jmoiron/sqlx"
@@ -25,9 +29,11 @@ import (
  * response as the encoding/json package is external to this package.
  */
 type StationTypes struct {
-	Id			int    `json:"id"`
-	Name		string `json:"name"`
-	Description	string `json:"description"`
+	Id          int       `db:"id"           json:"id"`
+	Name        string    `db:"name"         json:"name"`
+	Description string    `db:"description"  json:"description"`
+	DateCreated time.Time `db:"date_created" json:"date_created"`
+	DateUpdated time.Time `db:"date_updated" json:"date_updated"`
 }
 
 // Main entry point for program.
@@ -55,6 +61,26 @@ func main() {
 		log.Fatalf("error: connecting to db: %s", err)
 	}
 	defer db.Close()
+
+	flag.Parse()
+
+	switch flag.Arg(0) {
+	case "migrate":
+		if err := schema.Migrate(db); err != nil {
+			log.Println("error applying migrations", err)
+			os.Exit(1)
+		}
+		log.Println("Migrations complete")
+		return
+
+	case "seed":
+		if err := schema.Seed(db); err != nil {
+			log.Println("error seeding database", err)
+			os.Exit(1)
+		}
+		log.Println("Seed data complete")
+		return
+	}
 
 	// =========================================================================
 	// Start API Service
