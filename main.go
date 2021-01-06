@@ -4,13 +4,17 @@ import (
 	// Standard packages
 	"context"               // https://golang.org/pkg/context/
 	"encoding/json"         // https://golang.org/pkg/encoding/json/
-	"log"                   // https://golang.org/pkg/log/
-	"net/http"              // https://golang.org/pkg/net/http/
+	"flag"
+	"log"      // https://golang.org/pkg/log/
+	"net/http" // https://golang.org/pkg/net/http/
 	"net/url"
 	"os"
 	"os/signal"             // https://golang.org/src/os/signal/doc.go
 	"syscall"
 	"time"
+
+	// Applcation packages
+	"github.com/deezone/HydroBytes-BaseStation/schema"
 
 	// Third-party packages
 	"github.com/jmoiron/sqlx"
@@ -23,11 +27,19 @@ import (
  * Note: use of "stuct tags" (ex: `json:"id"`) to manage the names of properties to be lowercase and snake_case. Due to
  * the use of case for visibility in Go "id" rather and "Id" would result in the value being excluded in the JSON
  * response as the encoding/json package is external to this package.
+ *
+ * Note: the use of db:"id" allows renaming to map to the column used in the database
  */
 type StationTypes struct {
-	Id			int    `json:"id"`
-	Name		string `json:"name"`
-	Description	string `json:"description"`
+	Id          string    `db:"id"           json:"id"`
+	Name        string    `db:"name"         json:"name"`
+	Description string    `db:"description"  json:"description"`
+	DateCreated time.Time `db:"date_created" json:"date_created"`
+	DateUpdated time.Time `db:"date_updated" json:"date_updated"`
+}
+
+type StationService struct {
+	db *sqlx.DB
 }
 
 // Main entry point for program.
@@ -56,8 +68,31 @@ func main() {
 	}
 	defer db.Close()
 
+	flag.Parse()
+
+	switch flag.Arg(0) {
+	case "migrate":
+		if err := schema.Migrate(db); err != nil {
+			log.Println("error applying migrations", err)
+			os.Exit(1)
+		}
+		log.Println("Migrations complete")
+		return
+
+	case "seed":
+		if err := schema.Seed(db); err != nil {
+			log.Println("error seeding database", err)
+			os.Exit(1)
+		}
+		log.Println("Seed data complete")
+		return
+	}
+
 	// =========================================================================
 	// Start API Service
+
+	// Create copy of service (ss) to allow passing method (ss.List) to map to handler
+	ss := StationService{db: db}
 
 	/**
 	 * Convert the ListStationTypes function to a type that implements http.Handler
@@ -74,7 +109,7 @@ func main() {
 	 */
 	api := http.Server{
 		Addr:         "localhost:8000",
-		Handler:      http.HandlerFunc(ListStationTypes),
+		Handler:      http.HandlerFunc(ss.List),
 		ReadTimeout:  readTimeout,
 		WriteTimeout: writeTimeout,
 	}
@@ -145,11 +180,17 @@ func main() {
  * Note: If you open localhost:8000 in your browser, you may notice double requests being made. This happens because
  * the browser sends a request in the background for a website favicon. More the reason to use Postman to test!
  */
-func ListStationTypes(w http.ResponseWriter, r *http.Request) {
-	list := []StationTypes{
-		{Id: 1, Name: "Base", Description: "Coordinator for all station types - monitor, command and control. Access point to public Intenet."},
-		{Id: 2, Name: "Water", Description: "Management of water resources. Controls water levels in resavour and impliments irrigation."},
-		{Id: 3, Name: "Plant", Description: "Monitors and reports plant health."},
+func (s *StationService) List(w http.ResponseWriter, r *http.Request) {
+
+	list := []StationTypes{}
+	const q = "SELECT id, name, description, date_created, date_updated FROM station_types"
+
+	// https://godoc.org/github.com/jmoiron/sqlx#DB.Select
+	// SELECT destination (list) and query (q)
+	if err := s.db.Select(&list, q); err != nil {
+		log.Println("error quering database", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	// https://golang.org/pkg/encoding/json/#Marshal
