@@ -7,7 +7,8 @@ import (
 	"os"
 
 	// Applcation packages
-	"github.com/deezone/HydroBytes-BaseStation/schema"
+	"github.com/deezone/HydroBytes-BaseStation/internal/schema"
+	"github.com/deezone/HydroBytes-BaseStation/internal/platform/database"
 
 	// Third-party packages
 	"github.com/jmoiron/sqlx"
@@ -17,7 +18,7 @@ import (
 // Main entry point for command line functionality.
 func main() {
 
-	db, err := openDB()
+	db, err := database.Open()
 	if err != nil {
 		log.Fatalf("error: connecting to db: %s", err)
 	}

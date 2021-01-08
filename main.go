@@ -14,7 +14,7 @@ import (
 	"time"
 
 	// Applcation packages
-	"github.com/deezone/HydroBytes-BaseStation/schema"
+	"github.com/deezone/HydroBytes-BaseStation/internal/schema"
 
 	// Third-party packages
 	"github.com/jmoiron/sqlx"
@@ -210,22 +210,4 @@ func (s *StationService) List(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-/**
- * https://golang.org/pkg/database/sql/
- * Supported drivers: https://github.com/golang/go/wiki/SQLDrivers
- */
-func openDB() (*sqlx.DB, error) {
-	q := url.Values{}
-	q.Set("sslmode", "disable")
-	q.Set("timezone", "utc")
 
-	u := url.URL{
-		Scheme:   "postgres",
-		User:     url.UserPassword("postgres", "postgres"),
-		Host:     "localhost",
-		Path:     "postgres",
-		RawQuery: q.Encode(),
-	}
-
-	return sqlx.Open("postgres", u.String())
-}
