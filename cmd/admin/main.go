@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"os"
 
-	// Applcation packages
+	// Internal applcation packages
 	"github.com/deezone/HydroBytes-BaseStation/internal/schema"
 	"github.com/deezone/HydroBytes-BaseStation/internal/platform/database"
 
