@@ -1,41 +1,19 @@
 package main
 
 import (
-	// Standard packages
-	"context"       // https://golang.org/pkg/context/
-	"encoding/json" // https://golang.org/pkg/encoding/json/
-	"github.com/jmoiron/sqlx"
-	"log"      // https://golang.org/pkg/log/
-	"net/http" // https://golang.org/pkg/net/http/
+	// Core packages
+	"context"
+	"log"
+	"net/http"
 	"os"
-	"os/signal" // https://golang.org/src/os/signal/doc.go
+	"os/signal"
 	"syscall"
 	"time"
 
-	// Internal applcation packages
+	// Internal packages
+	"github.com/deezone/HydroBytes-BaseStation/cmd/api/internal/handlers"
 	"github.com/deezone/HydroBytes-BaseStation/internal/platform/database"
 )
-
-/**
- * StationTypes is a type of station in the automated garden system.
- *
- * Note: use of "stuct tags" (ex: `json:"id"`) to manage the names of properties to be lowercase and snake_case. Due to
- * the use of case for visibility in Go "id" rather and "Id" would result in the value being excluded in the JSON
- * response as the encoding/json package is external to this package.
- *
- * Note: the use of db:"id" allows renaming to map to the column used in the database
- */
-type StationTypes struct {
-	Id          string    `db:"id"           json:"id"`
-	Name        string    `db:"name"         json:"name"`
-	Description string    `db:"description"  json:"description"`
-	DateCreated time.Time `db:"date_created" json:"date_created"`
-	DateUpdated time.Time `db:"date_updated" json:"date_updated"`
-}
-
-type StationService struct {
-	db *sqlx.DB
-}
 
 // Main entry point for program.
 func main() {
@@ -67,7 +45,7 @@ func main() {
 	// Start API Service
 
 	// Create copy of service (ss) to allow passing method (ss.List) to map to handler
-	ss := StationService{db: db}
+	stationTypeHandler := handlers.StationTypes{DB: db}
 
 	/**
 	 * Convert the ListStationTypes function to a type that implements http.Handler
@@ -84,14 +62,13 @@ func main() {
 	 */
 	api := http.Server{
 		Addr:         "localhost:8000",
-		Handler:      http.HandlerFunc(ss.List),
+		Handler:      http.HandlerFunc(stationTypeHandler.List),
 		ReadTimeout:  readTimeout,
 		WriteTimeout: writeTimeout,
 	}
 
 	// Make a channel to listen for errors coming from the listener. Use a buffered channel so the goroutine can exit
 	// if we don't collect this error.
-	//
 	serverErrors := make(chan error, 1)
 
 	// Start a server listening ("bind") on port 8000 and responding using handler called ListStationTypes()
@@ -142,45 +119,5 @@ func main() {
 		if err != nil {
 			log.Fatalf("main : could not stop server gracefully : %v", err)
 		}
-	}
-}
-
-/**
- * ListStationTypes is a basic HTTP Handler that lists all of the station types in the HydroByte Automated Garden system.
- * A Handler is also know as a "controller" in the MVC pattern.
- *
- * The parameters must follow the signature defined in the http.HandlerFunc() adapter
- * (https://golang.org/src/net/http/server.go?s=97511:97566#L2034) to convert this method into a HTTP handler type.
- *
- * Note: If you open localhost:8000 in your browser, you may notice double requests being made. This happens because
- * the browser sends a request in the background for a website favicon. More the reason to use Postman to test!
- */
-func (s *StationService) List(w http.ResponseWriter, r *http.Request) {
-
-	list := []StationTypes{}
-	const q = "SELECT id, name, description, date_created, date_updated FROM station_types"
-
-	// https://godoc.org/github.com/jmoiron/sqlx#DB.Select
-	// SELECT destination (list) and query (q)
-	if err := s.db.Select(&list, q); err != nil {
-		log.Println("error quering database", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	// https://golang.org/pkg/encoding/json/#Marshal
-	data, err := json.Marshal(list)
-	if err != nil {
-		log.Println("error marshalling result", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-
-	// https://golang.org/pkg/net/http/#Request.Write
-	if _, err := w.Write(data); err != nil {
-		log.Println("error writing result", err)
 	}
 }
