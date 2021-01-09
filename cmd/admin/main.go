@@ -1,33 +1,73 @@
+// This program performs administrative tasks for the garage sale service.
 package main
 
 import (
-	"flag"
+	// Core Packages
+	"fmt"
 	"log" // https://golang.org/pkg/log/
 	"os"
 
+	// Internal application packages
+	"github.com/deezone/HydroBytes-BaseStation/internal/platform/conf"
 	"github.com/deezone/HydroBytes-BaseStation/internal/platform/database"
-	// Internal applcation packages
 	"github.com/deezone/HydroBytes-BaseStation/internal/schema"
 )
 
 // Main entry point for command line functionality.
 func main() {
 
-	flag.Parse()
+	// =========================================================================
+	// Configuration
 
-	db, err := database.Open()
+	var cfg struct {
+		DB struct {
+			User       string `conf:"default:postgres"`
+			Password   string `conf:"default:postgres,noprint"`
+			Host       string `conf:"default:localhost"`
+			Name       string `conf:"default:postgres"`
+			DisableTLS bool   `conf:"default:false"`
+		}
+		Args conf.Args
+	}
+
+	if err := conf.Parse(os.Args[1:], "STATIONS", &cfg); err != nil {
+		if err == conf.ErrHelpWanted {
+			usage, err := conf.Usage("STATIONS", &cfg)
+			if err != nil {
+				log.Fatalf("main : generating usage : %v", err)
+			}
+			fmt.Println(usage)
+			return
+		}
+		log.Fatalf("error: parsing config: %s", err)
+	}
+
+	// =========================================================================
+	// Database connection
+
+	// Initialize dependencies.
+	db, err := database.Open(database.Config{
+		User:       cfg.DB.User,
+		Password:   cfg.DB.Password,
+		Host:       cfg.DB.Host,
+		Name:       cfg.DB.Name,
+		DisableTLS: cfg.DB.DisableTLS,
+	})
 	if err != nil {
 		log.Fatalf("error: connecting to db: %s", err)
 	}
 	defer db.Close()
 
-	switch flag.Arg(0) {
+	// =========================================================================
+	// Supported admin commands
+
+	switch cfg.Args.Num(0) {
 	case "migrate":
 		if err := schema.Migrate(db); err != nil {
 			log.Println("error applying migrations", err)
 			os.Exit(1)
 		}
-		log.Println("Migrations complete")
+		fmt.Println("Migrations complete")
 		return
 
 	case "seed":
@@ -35,7 +75,7 @@ func main() {
 			log.Println("error seeding database", err)
 			os.Exit(1)
 		}
-		log.Println("Seed data complete")
+		fmt.Println("Seed data complete")
 		return
 	}
 }
