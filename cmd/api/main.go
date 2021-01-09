@@ -1,0 +1,123 @@
+package main
+
+import (
+	// Core packages
+	"context"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	// Internal packages
+	"github.com/deezone/HydroBytes-BaseStation/cmd/api/internal/handlers"
+	"github.com/deezone/HydroBytes-BaseStation/internal/platform/database"
+)
+
+// Main entry point for program.
+func main() {
+
+	// Define constants that includes their type to ensure a "kind" decarlation is not used resulting in much
+	// larger memory space use. See https://education.ardanlabs.com/courses/take/ultimate-syntax/lessons/13570526-constants-pt-2
+	const (
+		readTimeout time.Duration   = 5 * time.Second
+		writeTimeout time.Duration  = 5 * time.Second
+		cancelTimeout time.Duration = 5 * time.Second
+	)
+
+	// =========================================================================
+	// App Starting
+
+	log.Printf("main : Started")
+	defer log.Println("main : Completed")
+
+	// =========================================================================
+	// Start Database
+
+	db, err := database.Open()
+	if err != nil {
+		log.Fatalf("error: connecting to db: %s", err)
+	}
+	defer db.Close()
+
+	// =========================================================================
+	// Start API Service
+
+	// Create copy of service (ss) to allow passing method (ss.List) to map to handler
+	stationTypeHandler := handlers.StationTypes{DB: db}
+
+	/**
+	 * Convert the ListStationTypes function to a type that implements http.Handler
+	 * See https://education.ardanlabs.com/courses/take/ultimate-syntax/lessons/13570357-type-conversions for details
+	 * on "types" and conversions.
+	 *
+	 * Details on using HandlerFunc which is an adapter
+	 * "to allow the use of ordinary functions as HTTP handlers"
+	 * https://golang.org/pkg/net/http/#HandlerFunc
+	 *
+	 * Note this is an implementation of the same functionality that http.ListenAndServe() provides but is made
+	 * available in a channel.
+	 * https://golang.org/src/net/http/server.go?s=97511:97566#L3108
+	 */
+	api := http.Server{
+		Addr:         "localhost:8000",
+		Handler:      http.HandlerFunc(stationTypeHandler.List),
+		ReadTimeout:  readTimeout,
+		WriteTimeout: writeTimeout,
+	}
+
+	// Make a channel to listen for errors coming from the listener. Use a buffered channel so the goroutine can exit
+	// if we don't collect this error.
+	serverErrors := make(chan error, 1)
+
+	// Start a server listening ("bind") on port 8000 and responding using handler called ListStationTypes()
+	// https://golang.org/pkg/net/http/#Server.ListenAndServe
+	go func() {
+		log.Printf("main : API listening on %s", api.Addr)
+		serverErrors <- api.ListenAndServe()
+	}()
+
+	/**
+	 * Make a channel to listen for an interrupt or terminate signal from the OS. Use a buffered channel because the
+	 * signal package requires it. Note the value of "1", this limits the capacity to one to prevent processes from
+	 * staying alive if more than one thread is added to the channel which would prevent termination.
+	 *
+	 * Listening for os.Interrupt and syscall.SIGTERM events.
+	 */
+	shutdown := make(chan os.Signal, 1)
+	signal.Notify(shutdown, os.Interrupt, syscall.SIGTERM)
+
+	// =========================================================================
+	// Shutdown
+
+	// Blocking main and waiting for shutdown.
+	// Note two active channels: serverErrors and shutdown as defined above
+	select {
+	case err := <-serverErrors:
+		log.Fatalf("error: listening and serving: %s", err)
+
+	case <-shutdown:
+		log.Println("main : Start shutdown")
+
+		/**
+		 * Give outstanding requests a deadline for completion. Context defines the Context type, which carries
+		 * deadlines, cancellation signals, and other request-scoped values across API boundaries and between
+		 * processes.
+		 * https://golang.org/pkg/context/
+		 */
+		ctx, cancel := context.WithTimeout(context.Background(), cancelTimeout)
+		defer cancel()
+
+		// Asking listener to shutdown and load shed.
+		err := api.Shutdown(ctx)
+		if err != nil {
+			log.Printf("main : Graceful shutdown did not complete in %v : %v", cancelTimeout, err)
+			err = api.Close()
+		}
+
+		if err != nil {
+			log.Fatalf("main : could not stop server gracefully : %v", err)
+		}
+	}
+}
