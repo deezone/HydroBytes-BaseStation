@@ -39,6 +39,13 @@ func run() error {
 	// ex: readTimeout time.Duration   = 5 * time.Second
 
 	// =========================================================================
+	// Logging
+
+	// Use "shadowing" to override the global log package value. See https://golang.org/src/log/log.go#L37 for possible
+	// bit values to manage output
+	log := log.New(os.Stdout, "STATIONS : ", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
+
+	// =========================================================================
 	// Configuration
 
 	var cfg struct {
@@ -100,7 +107,7 @@ func run() error {
 	// Start API Service
 
 	// Create copy of service (ss) to allow passing method (ss.List) to map to handler
-	stationTypeHandler := handlers.StationTypes{DB: db}
+	stationTypeHandler := handlers.StationTypes{DB: db, Log: log}
 
 	/**
 	 * Convert the ListStationTypes function to a type that implements http.Handler
