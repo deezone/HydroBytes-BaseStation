@@ -7,14 +7,27 @@ import (
 	"log" // https://golang.org/pkg/log/
 	"os"
 
-	// Internal application packages
-	"github.com/deezone/HydroBytes-BaseStation/internal/platform/conf"
+	// Third-party packages
+	"github.com/pkg/errors"
+
+	// Internal applcation packages
+    "github.com/deezone/HydroBytes-BaseStation/internal/platform/conf"
 	"github.com/deezone/HydroBytes-BaseStation/internal/platform/database"
 	"github.com/deezone/HydroBytes-BaseStation/internal/schema"
 )
 
-// Main entry point for command line functionality.
+// Main entry point for program.
 func main() {
+
+	// Only call Exit in main() to allow all defers to complete before shutdown in the case of an error
+	if err := run(); err != nil {
+		log.Printf("error: shutting down: %s", err)
+		os.Exit(1)
+	}
+}
+
+// Main application logic.
+func run() error {
 
 	// =========================================================================
 	// Configuration
