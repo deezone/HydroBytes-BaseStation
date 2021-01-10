@@ -11,6 +11,9 @@ import (
 	"syscall"
 	"time"
 
+	// Third-party packages
+	"github.com/pkg/errors"
+
 	// Internal packages
 	"github.com/deezone/HydroBytes-BaseStation/cmd/api/internal/handlers"
 	"github.com/deezone/HydroBytes-BaseStation/internal/platform/conf"
@@ -20,6 +23,16 @@ import (
 
 // Main entry point for program.
 func main() {
+
+	// Only call Exit in main() to allow all defers to complete before shutdown in the case of an error
+	if err := run(); err != nil {
+		log.Printf("error: shutting down: %s", err)
+		os.Exit(1)
+	}
+}
+
+// Main application logic.
+func run() error {
 
 	// Define constants that includes their type to ensure a "kind" decarlation is not used resulting in much
 	// larger memory space use. See https://education.ardanlabs.com/courses/take/ultimate-syntax/lessons/13570526-constants-pt-2
