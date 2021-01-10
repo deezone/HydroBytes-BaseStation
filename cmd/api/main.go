@@ -11,15 +11,28 @@ import (
 	"syscall"
 	"time"
 
+	// Third-party packages
+	"github.com/pkg/errors"
+
 	// Internal packages
 	"github.com/deezone/HydroBytes-BaseStation/cmd/api/internal/handlers"
 	"github.com/deezone/HydroBytes-BaseStation/internal/platform/conf"
 	"github.com/deezone/HydroBytes-BaseStation/internal/platform/database"
-
 )
 
 // Main entry point for program.
 func main() {
+
+	// Only make termination calls (log.Fatalf()) in main() to allow all defers to complete before shutdown in the
+	// case of an error.
+	if err := run(); err != nil {
+		log.Printf("error: shutting down: %s", err)
+		os.Exit(1)
+	}
+}
+
+// Main application logic.
+func run() error {
 
 	// Define constants that includes their type to ensure a "kind" decarlation is not used resulting in much
 	// larger memory space use. See https://education.ardanlabs.com/courses/take/ultimate-syntax/lessons/13570526-constants-pt-2
@@ -48,12 +61,12 @@ func main() {
 		if err == conf.ErrHelpWanted {
 			usage, err := conf.Usage("STATIONS", &cfg)
 			if err != nil {
-				log.Fatalf("error : generating config usage : %v", err)
+				return errors.Wrap(err, "generating config usage")
 			}
 			fmt.Println(usage)
-			return
+			return nil
 		}
-		log.Fatalf("error: parsing config: %s", err)
+		return errors.Wrap(err, "parsing config")
 	}
 
 	// =========================================================================
@@ -64,7 +77,7 @@ func main() {
 
 	out, err := conf.String(&cfg)
 	if err != nil {
-		log.Fatalf("error : generating config for output : %v", err)
+		return errors.Wrap(err, "generating config for output")
 	}
 	log.Printf("main : Config :\n%v\n", out)
 
@@ -79,7 +92,7 @@ func main() {
 		DisableTLS: cfg.DB.DisableTLS,
 	})
 	if err != nil {
-		log.Fatalf("error: connecting to db: %s", err)
+		return errors.Wrap(err, "connecting to db")
 	}
 	defer db.Close()
 
@@ -137,7 +150,7 @@ func main() {
 	// Note two active channels: serverErrors and shutdown as defined above
 	select {
 	case err := <-serverErrors:
-		log.Fatalf("error: listening and serving: %s", err)
+		return errors.Wrap(err, "starting server")
 
 	case <-shutdown:
 		log.Println("main : Start shutdown")
@@ -159,7 +172,9 @@ func main() {
 		}
 
 		if err != nil {
-			log.Fatalf("main : could not stop server gracefully : %v", err)
+			return errors.Wrap(err, "could not stop server gracefully")
 		}
 	}
+
+	return nil
 }

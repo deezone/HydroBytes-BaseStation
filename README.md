@@ -8,8 +8,7 @@ controllers to manage and monitor plant health in an automated garden.
 The "garden" is simply a backyard patio in Brooklyn, New York. Typically
 there are only two seasons - cold and hot in New York City. By
 automating an urban garden ideally the space will thrive with minimum
-supervision. The amount of effort to automate is besides the point,  
-everyone needs their vices.
+supervision. The amount of effort to automate is besides the point, everyone needs their vices.
 
 - **[Water Management Station](https://github.com/deezone/HydroBytes-WaterManagement)**
 - **Base Station**
@@ -30,9 +29,53 @@ courses at **[Ardan Labs](https://education.ardanlabs.com/collections?category=c
 
 #### Starting Web Server
 ```
-go run .
-2021/01/01 19:08:42 Listening on localhost:8000
+> go run ./cmd/api
+
+2021/01/09 18:55:47 main : Started
+2021/01/09 18:55:47 main : Config :
+--web-address=localhost:8000
+--web-read-timeout=5s
+--web-write-timeout=5s
+--web-shutdown-timeout=5s
+--db-user=postgres
+--db-host=localhost
+--db-name=postgres
+--db-disable-tls=true
+2021/01/09 18:55:47 main : API listening on localhost:8000
+
+
+^C
+2021/01/09 18:57:37 main : Start shutdown
+2021/01/09 18:57:37 main : Completed
 ```
 
 - request to `localhost:8000`:
 ![Basic GET response](https://github.com/deezone/HydroBytes-BaseStation/blob/master/resources/images/basic-GET-response.jpg?raw=true)
+
+#### Admin tools
+
+```
+> go run ./cmd/admin -h migrate
+Usage: admin [options] [arguments]
+
+OPTIONS
+  --db-user/$STATIONS_DB_USER                <string>  (default: postgres)
+  --db-password/$STATIONS_DB_PASSWORD        <string>  (noprint,default: postgres)
+  --db-host/$STATIONS_DB_HOST                <string>  (default: localhost)
+  --db-name/$STATIONS_DB_NAME                <string>  (default: postgres)
+  --db-disable-tls/$STATIONS_DB_DISABLE_TLS  <bool>    (default: false)
+  --help/-h
+  display this help message
+```
+
+- `migrate` to update database with schema defined in code.
+```
+> go run ./cmd/admin migrate
+Migrations complete
+```
+
+- `seed` populate the database tables with seed data for testing and development.
+```
+> go run ./cmd/admin seed
+Seeding complete
+```

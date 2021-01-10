@@ -7,14 +7,27 @@ import (
 	"log" // https://golang.org/pkg/log/
 	"os"
 
-	// Internal application packages
+	// Third-party packages
+	"github.com/pkg/errors"
+
+	// Internal applcation packages
 	"github.com/deezone/HydroBytes-BaseStation/internal/platform/conf"
 	"github.com/deezone/HydroBytes-BaseStation/internal/platform/database"
 	"github.com/deezone/HydroBytes-BaseStation/internal/schema"
 )
 
-// Main entry point for command line functionality.
+// Main entry point for program.
 func main() {
+
+	// Only call Exit in main() to allow all defers to complete before shutdown in the case of an error
+	if err := run(); err != nil {
+		log.Printf("error: shutting down: %s", err)
+		os.Exit(1)
+	}
+}
+
+// Main application logic.
+func run() error {
 
 	// =========================================================================
 	// Configuration
@@ -34,12 +47,12 @@ func main() {
 		if err == conf.ErrHelpWanted {
 			usage, err := conf.Usage("STATIONS", &cfg)
 			if err != nil {
-				log.Fatalf("main : generating usage : %v", err)
+				return errors.Wrap(err, "generating usage")
 			}
 			fmt.Println(usage)
-			return
+			return nil
 		}
-		log.Fatalf("error: parsing config: %s", err)
+		return errors.Wrap(err, "error: parsing config")
 	}
 
 	// =========================================================================
@@ -54,7 +67,7 @@ func main() {
 		DisableTLS: cfg.DB.DisableTLS,
 	})
 	if err != nil {
-		log.Fatalf("error: connecting to db: %s", err)
+		return errors.Wrap(err, "connecting to db")
 	}
 	defer db.Close()
 
@@ -64,18 +77,18 @@ func main() {
 	switch cfg.Args.Num(0) {
 	case "migrate":
 		if err := schema.Migrate(db); err != nil {
-			log.Println("error applying migrations", err)
+			return errors.Wrap(err, "applying migrations")
 			os.Exit(1)
 		}
 		fmt.Println("Migrations complete")
-		return
 
 	case "seed":
 		if err := schema.Seed(db); err != nil {
-			log.Println("error seeding database", err)
+			return errors.Wrap(err, "seeding database")
 			os.Exit(1)
 		}
 		fmt.Println("Seed data complete")
-		return
 	}
+
+	return nil
 }
