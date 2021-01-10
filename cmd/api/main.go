@@ -18,7 +18,6 @@ import (
 	"github.com/deezone/HydroBytes-BaseStation/cmd/api/internal/handlers"
 	"github.com/deezone/HydroBytes-BaseStation/internal/platform/conf"
 	"github.com/deezone/HydroBytes-BaseStation/internal/platform/database"
-
 )
 
 // Main entry point for program.
