@@ -33,7 +33,7 @@ func (st *StationTypes) List(w http.ResponseWriter, r *http.Request) {
 
 	list, err := station_types.List(st.db)
 	if err != nil {
-		st.log.Println("listing station types", err)
+		st.log.Println("listing station types", "error", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -61,7 +61,7 @@ func (st *StationTypes) Retrieve(w http.ResponseWriter, r *http.Request) {
 
 	station, err := station_types.Retrieve(st.db, id)
 	if err != nil {
-		st.log.Println("getting station type", err)
+		st.log.Println("getting product", "error", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
