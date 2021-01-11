@@ -15,6 +15,7 @@ import (
 
 type StationTypes struct {
 	DB *sqlx.DB
+	Log *log.Logger
 }
 
 /**
@@ -31,7 +32,7 @@ func (st *StationTypes) List(w http.ResponseWriter, r *http.Request) {
 
 	list, err := station_types.List(st.DB)
 	if err != nil {
-		log.Printf("error: listing station types: %s", err)
+		st.Log.Printf("error: listing station types: %s", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -39,7 +40,7 @@ func (st *StationTypes) List(w http.ResponseWriter, r *http.Request) {
 	// https://golang.org/pkg/encoding/json/#Marshal
 	data, err := json.Marshal(list)
 	if err != nil {
-		log.Println("error marshalling result", err)
+		st.Log.Println("error marshalling result", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -49,6 +50,6 @@ func (st *StationTypes) List(w http.ResponseWriter, r *http.Request) {
 
 	// https://golang.org/pkg/net/http/#Request.Write
 	if _, err := w.Write(data); err != nil {
-		log.Println("error writing result", err)
+		st.Log.Println("error writing result", err)
 	}
 }
