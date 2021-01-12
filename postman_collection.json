@@ -1,0 +1,337 @@
+{
+	"info": {
+		"_postman_id": "27860101-b0cb-466c-9b01-298342c88ea6",
+		"name": "HydroBytes BaseStation Service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"postman.setEnvironmentVariable(\"Token\", jsonData.token);",
+							""
+						],
+						"id": "c45fe2f3-fdd9-435a-92a4-7fedf284323b"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "admin@example.com",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "gophers",
+							"type": "string"
+						},
+						{
+							"key": "saveHelperData",
+							"type": "any"
+						},
+						{
+							"key": "showPassword",
+							"value": false,
+							"type": "boolean"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{SERVER}}/v1/users/token",
+					"host": [
+						"{{SERVER}}"
+					],
+					"path": [
+						"v1",
+						"users",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Station  Types",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{Token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{SERVER}}/v1/station-types",
+					"host": [
+						"{{SERVER}}"
+					],
+					"path": [
+						"v1",
+						"station-types"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Station Types",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{Token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{SERVER}}/v1/station-types/a2b0639f-2cc6-44b8-b97b-15d69dbb511e",
+					"host": [
+						"{{SERVER}}"
+					],
+					"path": [
+						"v1",
+						"station-types",
+						"a2b0639f-2cc6-44b8-b97b-15d69dbb511e"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Station Type",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{Token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"Test Station\",\n\t\"description\": \"Test description\"\n}"
+				},
+				"url": {
+					"raw": "{{SERVER}}/v1/station-types",
+					"host": [
+						"{{SERVER}}"
+					],
+					"path": [
+						"v1",
+						"station-types"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Station Type",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{Token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"New Test Station\"\n}"
+				},
+				"url": {
+					"raw": "{{SERVER}}/v1/station-types/a2b0639f-2cc6-44b8-b97b-15d69dbb511e",
+					"host": [
+						"{{SERVER}}"
+					],
+					"path": [
+						"v1",
+						"station-types",
+						"a2b0639f-2cc6-44b8-b97b-15d69dbb511e"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete WaterStation Station Type",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{Token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{SERVER}}/v1/station-types/72f8b983-3eb4-48db-9ed0-e45cc6bd716b",
+					"host": [
+						"{{SERVER}}"
+					],
+					"path": [
+						"v1",
+						"station-types",
+						"72f8b983-3eb4-48db-9ed0-e45cc6bd716b"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Stations by Station Type",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{Token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{SERVER}}/v1/station-types/a2b0639f-2cc6-44b8-b97b-15d69dbb511e/stations",
+					"host": [
+						"{{SERVER}}"
+					],
+					"path": [
+						"v1",
+						"station-types",
+						"a2b0639f-2cc6-44b8-b97b-15d69dbb511e",
+						"stations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Station",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{Token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"quantity\": 2,\n\t\"paid\": 40\n}"
+				},
+				"url": {
+					"raw": "{{SERVER}}/v1/stations-type/a2b0639f-2cc6-44b8-b97b-15d69dbb511e/station",
+					"host": [
+						"{{SERVER}}"
+					],
+					"path": [
+						"v1",
+						"stations-type",
+						"a2b0639f-2cc6-44b8-b97b-15d69dbb511e",
+						"station"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{SERVER}}/v1/health",
+					"host": [
+						"{{SERVER}}"
+					],
+					"path": [
+						"v1",
+						"health"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "9eba4917-9948-4209-9e33-c39e376d1bb5",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "cef76e2b-f3c0-463a-a11c-593fcba7dab5",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"protocolProfileBehavior": {}
+}

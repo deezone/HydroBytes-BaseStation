@@ -11,13 +11,13 @@ import (
 	"syscall"
 	"time"
 
-	// Third-party packages
-	"github.com/pkg/errors"
-
 	// Internal packages
 	"github.com/deezone/HydroBytes-BaseStation/cmd/api/internal/handlers"
 	"github.com/deezone/HydroBytes-BaseStation/internal/platform/conf"
 	"github.com/deezone/HydroBytes-BaseStation/internal/platform/database"
+
+	// Third-party packages
+	"github.com/pkg/errors"
 )
 
 // Main entry point for program.
@@ -26,7 +26,7 @@ func main() {
 	// Only make termination calls (log.Fatalf()) in main() to allow all defers to complete before shutdown in the
 	// case of an error.
 	if err := run(); err != nil {
-		log.Printf("error: shutting down: %s", err)
+		log.Println("shutting down", "error:", err)
 		os.Exit(1)
 	}
 }
@@ -106,9 +106,6 @@ func run() error {
 	// =========================================================================
 	// Start API Service
 
-	// Create copy of service (ss) to allow passing method (ss.List) to map to handler
-	stationTypeHandler := handlers.StationTypes{DB: db, Log: log}
-
 	/**
 	 * Convert the ListStationTypes function to a type that implements http.Handler
 	 * See https://education.ardanlabs.com/courses/take/ultimate-syntax/lessons/13570357-type-conversions for details
@@ -124,7 +121,7 @@ func run() error {
 	 */
 	api := http.Server{
 		Addr:         cfg.Web.Address,
-		Handler:      http.HandlerFunc(stationTypeHandler.List),
+		Handler:      handlers.API(db, log),
 		ReadTimeout:  cfg.Web.ReadTimeout,
 		WriteTimeout: cfg.Web.WriteTimeout,
 	}

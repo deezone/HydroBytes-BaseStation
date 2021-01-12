@@ -1,6 +1,9 @@
 package station_types
 
-import "time"
+import (
+	// Core packages
+	"time"
+)
 
 /**
  * StationTypes is a type of station in the automated garden system.

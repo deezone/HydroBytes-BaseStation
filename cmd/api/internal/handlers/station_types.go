@@ -10,12 +10,13 @@ import (
 	"github.com/deezone/HydroBytes-BaseStation/internal/station_types"
 
 	// Third party packages
+	"github.com/go-chi/chi"
 	"github.com/jmoiron/sqlx"
 )
 
 type StationTypes struct {
-	DB *sqlx.DB
-	Log *log.Logger
+	db *sqlx.DB
+	log *log.Logger
 }
 
 /**
@@ -30,9 +31,9 @@ type StationTypes struct {
  */
 func (st *StationTypes) List(w http.ResponseWriter, r *http.Request) {
 
-	list, err := station_types.List(st.DB)
+	list, err := station_types.List(st.db)
 	if err != nil {
-		st.Log.Printf("error: listing station types: %s", err)
+		st.log.Println("listing station types", "error", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -40,7 +41,7 @@ func (st *StationTypes) List(w http.ResponseWriter, r *http.Request) {
 	// https://golang.org/pkg/encoding/json/#Marshal
 	data, err := json.Marshal(list)
 	if err != nil {
-		st.Log.Println("error marshalling result", err)
+		st.log.Println("error marshalling result", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -50,6 +51,31 @@ func (st *StationTypes) List(w http.ResponseWriter, r *http.Request) {
 
 	// https://golang.org/pkg/net/http/#Request.Write
 	if _, err := w.Write(data); err != nil {
-		st.Log.Println("error writing result", err)
+		st.log.Println("error writing result", err)
+	}
+}
+
+// Retrieve finds a single station type identified by an ID in the request URL.
+func (st *StationTypes) Retrieve(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+
+	station, err := station_types.Retrieve(st.db, id)
+	if err != nil {
+		st.log.Println("getting product", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	data, err := json.Marshal(station)
+	if err != nil {
+		st.log.Println("error marshalling result", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	if _, err := w.Write(data); err != nil {
+		st.log.Println("error writing result", err)
 	}
 }
