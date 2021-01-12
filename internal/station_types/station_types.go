@@ -2,11 +2,44 @@ package station_types
 
 import (
 	// Core packages
-	"github.com/pkg/errors"
+	"time"
 
 	// Third party packages
+	"github.com/pkg/errors"
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
+
+// Create adds a Product to the database. It returns the created Product with
+// fields like ID and DateCreated populated..
+func Create(db *sqlx.DB, nst NewStationTypes, now time.Time) (*StationTypes, error) {
+	st := StationTypes{
+		Id:          uuid.New().String(),
+		Name:        nst.Name,
+		Description: nst.Description,
+		DateCreated: now.UTC(),
+		DateUpdated: now.UTC(),
+	}
+
+	const q = `
+		INSERT INTO station_types
+		  (id, name, description, date_created, date_updated)
+		VALUES ($1, $2, $3, $4, $5)`
+
+	_, err := db.Exec(q,
+		st.Id,
+		st.Name,
+		st.Description,
+		st.DateCreated,
+		st.DateUpdated,
+	)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "inserting station tyoe")
+	}
+
+	return &st, nil
+}
 
 // List gets all Products from the database.
 func List(db *sqlx.DB) ([]StationTypes, error) {
