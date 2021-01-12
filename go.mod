@@ -19,6 +19,7 @@ require (
 	github.com/go-sql-driver/mysql v1.5.0 // indirect
 	github.com/golang/snappy v0.0.2 // indirect
 	github.com/google/go-cmp v0.5.4
+	github.com/google/uuid v1.1.4
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/lib/pq v1.9.0
 	github.com/mattn/go-sqlite3 v1.14.6 // indirect
