@@ -10,7 +10,7 @@ there are only two seasons - cold and hot in New York City. By
 automating an urban garden ideally the space will thrive with minimum
 supervision. The amount of effort to automate is besides the point, everyone needs their vices.
 
-- **[Water Management Station](https://github.com/deezone/HydroBytes-WaterManagement)**
+- **[Water Station](https://github.com/deezone/HydroBytes-WaterStation)**
 - **Base Station**
 - **[Plant Station](https://github.com/deezone/HydroBytes-PlantStation)**
 
@@ -20,7 +20,7 @@ supervision. The amount of effort to automate is besides the point, everyone nee
 
 ### YouTube Channel
 
-[![YouTube Channel](https://github.com/deezone/HydroBytes-WaterManagement/blob/master/resources/youTube-TN.png?raw=true)](https://www.youtube.com/channel/UC00A_lEJD2Hcy9bw6UuoUBA "All of the HydroBytes videos")
+[![YouTube Channel](https://github.com/deezone/HydroBytes-WaterStation/blob/master/resources/youTube-TN.png?raw=true)](https://www.youtube.com/channel/UC00A_lEJD2Hcy9bw6UuoUBA "All of the HydroBytes videos")
 
 ### Notes
 
@@ -49,8 +49,10 @@ courses at **[Ardan Labs](https://education.ardanlabs.com/collections?category=c
 2021/01/09 18:57:37 main : Completed
 ```
 
-- request to `localhost:8000`:
-![Basic GET response](https://github.com/deezone/HydroBytes-BaseStation/blob/master/resources/images/basic-GET-response.jpg?raw=true)
+- supported requests to `localhost:8000`:
+  - `GET /v1/station-types`
+  - `GET /v1/station-types/{id}`
+  - `POST /v1/station-types`
 
 #### Admin tools
 
