@@ -21,3 +21,9 @@ type StationTypes struct {
 	DateCreated time.Time `db:"date_created" json:"date_created"`
 	DateUpdated time.Time `db:"date_updated" json:"date_updated"`
 }
+
+// NewStationTypes is what we require from clients when adding a StationType.
+type NewStationTypes struct {
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+}

@@ -21,6 +21,7 @@ func API(db *sqlx.DB, log *log.Logger) http.Handler {
 
 	app.Handle(http.MethodGet, "/v1/station-types", st.List)
 	app.Handle(http.MethodGet, "/v1/station-types/{id}", st.Retrieve)
+	app.Handle(http.MethodPost, "/v1/station-types", st.Create)
 
 	return app
 }

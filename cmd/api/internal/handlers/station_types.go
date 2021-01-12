@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 
 	// Internal packages
 	"github.com/deezone/HydroBytes-BaseStation/internal/station_types"
@@ -17,6 +18,39 @@ import (
 type StationTypes struct {
 	db *sqlx.DB
 	log *log.Logger
+}
+
+// Create decodes the body of a request to create a new station type. The full
+// station type with generated fields is sent back in the response.
+func (st *StationTypes) Create(w http.ResponseWriter, r *http.Request) {
+
+	var np station_types.NewStationTypes
+
+	if err := json.NewDecoder(r.Body).Decode(&np); err != nil {
+		st.log.Println("decoding station type", "error", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	station_type, err := station_types.Create(st.db, np, time.Now())
+	if err != nil {
+		st.log.Println("creating station type", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	data, err := json.Marshal(station_type)
+	if err != nil {
+		st.log.Println("error marshalling result", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusCreated)
+	if _, err := w.Write(data); err != nil {
+		st.log.Println("error writing result", err)
+	}
 }
 
 /**
