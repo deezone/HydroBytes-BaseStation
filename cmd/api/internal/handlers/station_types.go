@@ -65,7 +65,14 @@ func (st *StationTypes) Retrieve(w http.ResponseWriter, r *http.Request) error {
 
 	station_type, err := station_types.Retrieve(st.db, id)
 	if err != nil {
-		return errors.Wrapf(err, "getting station tyoes %q", id)
+		switch err {
+		case station_types.ErrNotFound:
+			return web.NewRequestError(err, http.StatusNotFound)
+		case station_types.ErrInvalidID:
+			return web.NewRequestError(err, http.StatusBadRequest)
+		default:
+			return errors.Wrapf(err, "getting product %q", id)
+		}
 	}
 
 	return web.Respond(w, station_type, http.StatusOK)
