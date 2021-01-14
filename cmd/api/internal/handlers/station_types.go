@@ -2,12 +2,12 @@ package handlers
 
 import (
 	// Core packages
-	"encoding/json"
 	"log"
 	"net/http"
 	"time"
 
 	// Internal packages
+	"github.com/deezone/HydroBytes-BaseStation/internal/platform/web"
 	"github.com/deezone/HydroBytes-BaseStation/internal/station_types"
 
 	// Third party packages
@@ -24,32 +24,25 @@ type StationTypes struct {
 // station type with generated fields is sent back in the response.
 func (st *StationTypes) Create(w http.ResponseWriter, r *http.Request) {
 
-	var np station_types.NewStationTypes
+	var nst station_types.NewStationTypes
 
-	if err := json.NewDecoder(r.Body).Decode(&np); err != nil {
+	if err := web.Decode(r, &nst); err != nil {
 		st.log.Println("decoding station type", "error", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	station_type, err := station_types.Create(st.db, np, time.Now())
+	station_type, err := station_types.Create(st.db, nst, time.Now())
 	if err != nil {
 		st.log.Println("creating station type", "error", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	data, err := json.Marshal(station_type)
-	if err != nil {
-		st.log.Println("error marshalling result", err)
+	if err := web.Respond(w, &station_type, http.StatusCreated); err != nil {
+		st.log.Println("encoding response", "error", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
-	}
-
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http.StatusCreated)
-	if _, err := w.Write(data); err != nil {
-		st.log.Println("error writing result", err)
 	}
 }
 
@@ -72,20 +65,9 @@ func (st *StationTypes) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// https://golang.org/pkg/encoding/json/#Marshal
-	data, err := json.Marshal(list)
-	if err != nil {
-		st.log.Println("error marshalling result", err)
-		w.WriteHeader(http.StatusInternalServerError)
+	if err := web.Respond(w, list, http.StatusOK); err != nil {
+		st.log.Println("encoding response", "error", err)
 		return
-	}
-
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-
-	// https://golang.org/pkg/net/http/#Request.Write
-	if _, err := w.Write(data); err != nil {
-		st.log.Println("error writing result", err)
 	}
 }
 
@@ -100,16 +82,9 @@ func (st *StationTypes) Retrieve(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := json.Marshal(station)
-	if err != nil {
-		st.log.Println("error marshalling result", err)
+	if err := web.Respond(w, station, http.StatusOK); err != nil {
+		st.log.Println("encoding response", "error", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
-	}
-
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-	if _, err := w.Write(data); err != nil {
-		st.log.Println("error writing result", err)
 	}
 }
