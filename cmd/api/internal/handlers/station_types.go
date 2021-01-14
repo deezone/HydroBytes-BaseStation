@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/pkg/errors"
 	// Core packages
 	"log"
 	"net/http"
@@ -22,28 +23,20 @@ type StationTypes struct {
 
 // Create decodes the body of a request to create a new station type. The full
 // station type with generated fields is sent back in the response.
-func (st *StationTypes) Create(w http.ResponseWriter, r *http.Request) {
+func (st *StationTypes) Create(w http.ResponseWriter, r *http.Request) error {
 
 	var nst station_types.NewStationTypes
 
-	if err := web.Decode(r, &nst); err != nil {
-		st.log.Println("decoding station type", "error", err)
-		w.WriteHeader(http.StatusBadRequest)
-		return
+	if err := web.Decode(r, &st); err != nil {
+		return errors.Wrap(err, "decoding new station tyoe")
 	}
 
 	station_type, err := station_types.Create(st.db, nst, time.Now())
 	if err != nil {
-		st.log.Println("creating station type", "error", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		return errors.Wrap(err, "creating new station tyoe")
 	}
 
-	if err := web.Respond(w, &station_type, http.StatusCreated); err != nil {
-		st.log.Println("encoding response", "error", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	return web.Respond(w, &station_type, http.StatusCreated)
 }
 
 /**
@@ -56,35 +49,24 @@ func (st *StationTypes) Create(w http.ResponseWriter, r *http.Request) {
  * Note: If you open localhost:8000 in your browser, you may notice double requests being made. This happens because
  * the browser sends a request in the background for a website favicon. More the reason to use Postman to test!
  */
-func (st *StationTypes) List(w http.ResponseWriter, r *http.Request) {
+func (st *StationTypes) List(w http.ResponseWriter, r *http.Request) error {
 
 	list, err := station_types.List(st.db)
 	if err != nil {
-		st.log.Println("listing station types", "error", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		return errors.Wrap(err, "getting station tyoe list")
 	}
 
-	if err := web.Respond(w, list, http.StatusOK); err != nil {
-		st.log.Println("encoding response", "error", err)
-		return
-	}
+	return web.Respond(w, list, http.StatusOK)
 }
 
 // Retrieve finds a single station type identified by an ID in the request URL.
-func (st *StationTypes) Retrieve(w http.ResponseWriter, r *http.Request) {
+func (st *StationTypes) Retrieve(w http.ResponseWriter, r *http.Request) error {
 	id := chi.URLParam(r, "id")
 
-	station, err := station_types.Retrieve(st.db, id)
+	station_type, err := station_types.Retrieve(st.db, id)
 	if err != nil {
-		st.log.Println("getting product", "error", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		return errors.Wrapf(err, "getting station tyoes %q", id)
 	}
 
-	if err := web.Respond(w, station, http.StatusOK); err != nil {
-		st.log.Println("encoding response", "error", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	return web.Respond(w, station_type, http.StatusOK)
 }
