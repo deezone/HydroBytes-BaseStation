@@ -13,12 +13,14 @@ import (
 func Respond(w http.ResponseWriter, data interface{}, statusCode int) error {
 
 	// Convert the response value to JSON.
+	// https://golang.org/pkg/encoding/json/#Marshal
 	res, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
 
 	// Respond with the provided JSON.
+	// https://golang.org/pkg/net/http/#Request.Write
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(statusCode)
 	if _, err := w.Write(res); err != nil {

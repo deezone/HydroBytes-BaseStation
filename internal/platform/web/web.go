@@ -1,16 +1,18 @@
 package web
 
 import (
+	// Code packages
 	"log"
 	"net/http"
 
+	// Third-party packages
 	"github.com/go-chi/chi"
 )
 
 // Handler is the signature used by all application handlers in this service.
 type Handler func(http.ResponseWriter, *http.Request) error
 
-// App is the entrypoint into our application and what controls the context of
+// App is the entry point into our application and what controls the context of
 // each request. Feel free to add any configuration data/logic on this type.
 type App struct {
 	log *log.Logger
