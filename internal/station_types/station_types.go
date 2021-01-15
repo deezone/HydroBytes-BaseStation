@@ -2,12 +2,22 @@ package station_types
 
 import (
 	// Core packages
+	"database/sql"
 	"time"
 
-	// Third party packages
+	// Third-party packages
 	"github.com/pkg/errors"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
+)
+
+// Predefined errors identify expected failure conditions.
+var (
+	// ErrNotFound is used when a specific StationTypes is requested but does not exist.
+	ErrNotFound = errors.New("station type not found")
+
+	// ErrInvalidID is used when an invalid UUID is provided.
+	ErrInvalidID = errors.New("ID is not in its proper UUID format")
 )
 
 // Create adds a Product to the database. It returns the created Product with
@@ -59,6 +69,9 @@ func List(db *sqlx.DB) ([]StationTypes, error) {
 
 // Retrieve gets a specific StationType from the database.
 func Retrieve(db *sqlx.DB, id string) (*StationTypes, error) {
+	if _, err := uuid.Parse(id); err != nil {
+		return nil, ErrInvalidID
+	}
 
 	var st StationTypes
 
@@ -69,6 +82,10 @@ func Retrieve(db *sqlx.DB, id string) (*StationTypes, error) {
 		WHERE id = $1`
 
 	if err := db.Get(&st, q, id); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, ErrNotFound
+		}
+
 		return nil, errors.Wrap(err, "selecting single station type")
 	}
 

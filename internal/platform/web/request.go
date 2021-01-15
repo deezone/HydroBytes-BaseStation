@@ -1,7 +1,7 @@
 package web
 
 import (
-	// Code packages
+	// Core packages
 	"encoding/json"
 	"net/http"
 )
@@ -10,7 +10,7 @@ import (
 // body is decoded into the provided value.
 func Decode(r *http.Request, val interface{}) error {
 	if err := json.NewDecoder(r.Body).Decode(val); err != nil {
-		return err
+		return NewRequestError(err, http.StatusBadRequest)
 	}
 
 	return nil
