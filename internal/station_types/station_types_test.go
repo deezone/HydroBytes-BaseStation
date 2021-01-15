@@ -31,7 +31,7 @@ func TestStationTypesCreateRetrieve(t *testing.T) {
 
 	st1, err := station_types.Retrieve(db, st0.Id)
 	if err != nil {
-		t.Fatalf("getting product p0: %s", err)
+		t.Fatalf("getting station type p0: %s", err)
 	}
 
 	if diff := cmp.Diff(st1, st0); diff != "" {
