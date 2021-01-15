@@ -27,13 +27,13 @@ func (st *StationTypes) Create(w http.ResponseWriter, r *http.Request) error {
 
 	var nst station_types.NewStationTypes
 
-	if err := web.Decode(r, &st); err != nil {
+	if err := web.Decode(r, &nst); err != nil {
 		return errors.Wrap(err, "decoding new station tyoe")
 	}
 
 	station_type, err := station_types.Create(st.db, nst, time.Now())
 	if err != nil {
-		return errors.Wrap(err, "creating new station tyoe")
+		return errors.Wrap(err, "creating new station type")
 	}
 
 	return web.Respond(w, &station_type, http.StatusCreated)
@@ -71,7 +71,7 @@ func (st *StationTypes) Retrieve(w http.ResponseWriter, r *http.Request) error {
 		case station_types.ErrInvalidID:
 			return web.NewRequestError(err, http.StatusBadRequest)
 		default:
-			return errors.Wrapf(err, "getting product %q", id)
+			return errors.Wrapf(err, "getting station type %q", id)
 		}
 	}
 
