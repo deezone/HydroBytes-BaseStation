@@ -81,3 +81,18 @@ Migrations complete
 > go run ./cmd/admin seed
 Seeding complete
 ```
+
+#### Tests
+
+- Unit Tests
+
+```
+> go test ./internal/station_types
+ok  	github.com/deezone/HydroBytes-BaseStation/internal/station_types	5.546s
+```
+
+- Functional tests
+```
+> go test ./cmd/api/tests
+ok  	github.com/deezone/HydroBytes-BaseStation/cmd/api/tests	2.971s
+```
