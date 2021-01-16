@@ -31,7 +31,7 @@ func (st *StationTypes) Create(w http.ResponseWriter, r *http.Request) error {
 		return errors.Wrap(err, "decoding new station tyoe")
 	}
 
-	station_type, err := station_types.Create(st.db, nst, time.Now())
+	station_type, err := station_types.Create(r.Context(), st.db, nst, time.Now())
 	if err != nil {
 		return errors.Wrap(err, "creating new station type")
 	}
@@ -51,7 +51,7 @@ func (st *StationTypes) Create(w http.ResponseWriter, r *http.Request) error {
  */
 func (st *StationTypes) List(w http.ResponseWriter, r *http.Request) error {
 
-	list, err := station_types.List(st.db)
+	list, err := station_types.List(r.Context(), st.db)
 	if err != nil {
 		return errors.Wrap(err, "getting station tyoe list")
 	}
@@ -63,7 +63,7 @@ func (st *StationTypes) List(w http.ResponseWriter, r *http.Request) error {
 func (st *StationTypes) Retrieve(w http.ResponseWriter, r *http.Request) error {
 	id := chi.URLParam(r, "id")
 
-	station_type, err := station_types.Retrieve(st.db, id)
+	station_type, err := station_types.Retrieve(r.Context(), st.db, id)
 	if err != nil {
 		switch err {
 		case station_types.ErrNotFound:
