@@ -2,6 +2,7 @@ package station_types
 
 import (
 	// Core packages
+	"context"       // https://golang.org/pkg/context
 	"database/sql"
 	"time"
 
@@ -21,8 +22,8 @@ var (
 )
 
 // Create adds a StationType to the database. It returns the created StationTypes with
-// fields like ID and DateCreated populated..
-func Create(db *sqlx.DB, nst NewStationTypes, now time.Time) (*StationTypes, error) {
+// fields like ID and DateCreated populated.
+func Create(ctx context.Context, db *sqlx.DB, nst NewStationTypes, now time.Time) (*StationTypes, error) {
 	st := StationTypes{
 		Id:          uuid.New().String(),
 		Name:        nst.Name,
@@ -36,7 +37,7 @@ func Create(db *sqlx.DB, nst NewStationTypes, now time.Time) (*StationTypes, err
 		  (id, name, description, date_created, date_updated)
 		VALUES ($1, $2, $3, $4, $5)`
 
-	_, err := db.Exec(q,
+	_, err := db.ExecContext(ctx, q,
 		st.Id,
 		st.Name,
 		st.Description,
@@ -52,7 +53,7 @@ func Create(db *sqlx.DB, nst NewStationTypes, now time.Time) (*StationTypes, err
 }
 
 // List gets all StationTypes from the database.
-func List(db *sqlx.DB) ([]StationTypes, error) {
+func List(ctx context.Context, db *sqlx.DB) ([]StationTypes, error) {
 	station_types := []StationTypes{}
 
 	const q = `
@@ -60,7 +61,7 @@ func List(db *sqlx.DB) ([]StationTypes, error) {
 			id, name, description, date_created, date_updated
 		FROM station_types`
 
-	if err := db.Select(&station_types, q); err != nil {
+	if err := db.SelectContext(ctx, &station_types, q); err != nil {
 		return nil, errors.Wrap(err, "selecting station types")
 	}
 
@@ -68,7 +69,7 @@ func List(db *sqlx.DB) ([]StationTypes, error) {
 }
 
 // Retrieve gets a specific StationType from the database.
-func Retrieve(db *sqlx.DB, id string) (*StationTypes, error) {
+func Retrieve(ctx context.Context, db *sqlx.DB, id string) (*StationTypes, error) {
 	if _, err := uuid.Parse(id); err != nil {
 		return nil, ErrInvalidID
 	}
@@ -81,7 +82,7 @@ func Retrieve(db *sqlx.DB, id string) (*StationTypes, error) {
 		FROM station_types
 		WHERE id = $1`
 
-	if err := db.Get(&st, q, id); err != nil {
+	if err := db.GetContext(ctx, &st, q, id); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, ErrNotFound
 		}
