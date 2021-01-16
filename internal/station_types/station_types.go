@@ -20,7 +20,7 @@ var (
 	ErrInvalidID = errors.New("ID is not in its proper UUID format")
 )
 
-// Create adds a Product to the database. It returns the created Product with
+// Create adds a StationType to the database. It returns the created StationTypes with
 // fields like ID and DateCreated populated..
 func Create(db *sqlx.DB, nst NewStationTypes, now time.Time) (*StationTypes, error) {
 	st := StationTypes{
@@ -51,20 +51,20 @@ func Create(db *sqlx.DB, nst NewStationTypes, now time.Time) (*StationTypes, err
 	return &st, nil
 }
 
-// List gets all Products from the database.
+// List gets all StationTypes from the database.
 func List(db *sqlx.DB) ([]StationTypes, error) {
-	products := []StationTypes{}
+	station_types := []StationTypes{}
 
 	const q = `
 		SELECT
 			id, name, description, date_created, date_updated
 		FROM station_types`
 
-	if err := db.Select(&products, q); err != nil {
+	if err := db.Select(&station_types, q); err != nil {
 		return nil, errors.Wrap(err, "selecting station types")
 	}
 
-	return products, nil
+	return station_types, nil
 }
 
 // Retrieve gets a specific StationType from the database.
