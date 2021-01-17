@@ -116,13 +116,13 @@ func (st *StationTypesTests) StationTypesCRUD(t *testing.T) {
 		}
 
 		if actual["id"] == "" || actual["id"] == nil {
-			t.Fatal("expected non-empty station_types id")
+			t.Fatal("expected non-empty station_type id")
 		}
 		if actual["date_created"] == "" || actual["date_created"] == nil {
-			t.Fatal("expected non-empty station_types date_created")
+			t.Fatal("expected non-empty station_type date_created")
 		}
 		if actual["date_updated"] == "" || actual["date_updated"] == nil {
-			t.Fatal("expected non-empty station_types date_updated")
+			t.Fatal("expected non-empty station_type date_updated")
 		}
 
 		expected := map[string]interface{}{
