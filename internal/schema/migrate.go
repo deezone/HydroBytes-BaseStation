@@ -17,7 +17,7 @@ var migrations = []darwin.Migration{
 		Version:	 1,
 		Description: "Add station types",
 		Script: `
-CREATE TABLE station_types (
+CREATE TABLE station_type (
 	id           UUID,
 	name         TEXT,
 	description  TEXT,
