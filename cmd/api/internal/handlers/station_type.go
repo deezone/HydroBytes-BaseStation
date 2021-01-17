@@ -12,8 +12,8 @@ import (
 
 	// Third party packages
 	"github.com/go-chi/chi"
-	"github.com/pkg/errors"
 	"github.com/jmoiron/sqlx"
+	"github.com/pkg/errors"
 )
 
 type StationType struct {
@@ -28,15 +28,15 @@ func (st *StationType) Create(w http.ResponseWriter, r *http.Request) error {
 	var nst station_type.NewStationType
 
 	if err := web.Decode(r, &nst); err != nil {
-		return errors.Wrap(err, "decoding new station tyoe")
+		return errors.Wrap(err, "decoding new station type")
 	}
 
-	new_type, err := station_type.Create(r.Context(), st.db, nst, time.Now())
+	newType, err := station_type.Create(r.Context(), st.db, nst, time.Now())
 	if err != nil {
 		return errors.Wrap(err, "creating new station type")
 	}
 
-	return web.Respond(w, &new_type, http.StatusCreated)
+	return web.Respond(w, &newType, http.StatusCreated)
 }
 
 /**
@@ -53,7 +53,7 @@ func (st *StationType) List(w http.ResponseWriter, r *http.Request) error {
 
 	list, err := station_type.List(r.Context(), st.db)
 	if err != nil {
-		return errors.Wrap(err, "getting station tyoe list")
+		return errors.Wrap(err, "getting station type list")
 	}
 
 	return web.Respond(w, list, http.StatusOK)

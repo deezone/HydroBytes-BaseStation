@@ -14,14 +14,14 @@ import (
 
 // Predefined errors identify expected failure conditions.
 var (
-	// ErrNotFound is used when a specific StationTypes is requested but does not exist.
+	// ErrNotFound is used when a specific StationType is requested but does not exist.
 	ErrNotFound = errors.New("station type not found")
 
 	// ErrInvalidID is used when an invalid UUID is provided.
 	ErrInvalidID = errors.New("ID is not in its proper UUID format")
 )
 
-// Create adds a StationType to the database. It returns the created StationTypes with
+// Create adds a StationType to the database. It returns the created StationType with
 // fields like ID and DateCreated populated.
 func Create(ctx context.Context, db *sqlx.DB, nst NewStationType, now time.Time) (*StationType, error) {
 	st := StationType{
@@ -52,7 +52,7 @@ func Create(ctx context.Context, db *sqlx.DB, nst NewStationType, now time.Time)
 	return &st, nil
 }
 
-// List gets all StationTypes from the database.
+// List gets all StationType from the database.
 func List(ctx context.Context, db *sqlx.DB) ([]StationType, error) {
 	station_type := []StationType{}
 
