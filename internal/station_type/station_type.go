@@ -1,4 +1,4 @@
-package station_types
+package station_type
 
 import (
 	// Core packages
@@ -23,8 +23,8 @@ var (
 
 // Create adds a StationType to the database. It returns the created StationTypes with
 // fields like ID and DateCreated populated.
-func Create(ctx context.Context, db *sqlx.DB, nst NewStationTypes, now time.Time) (*StationTypes, error) {
-	st := StationTypes{
+func Create(ctx context.Context, db *sqlx.DB, nst NewStationType, now time.Time) (*StationType, error) {
+	st := StationType{
 		Id:          uuid.New().String(),
 		Name:        nst.Name,
 		Description: nst.Description,
@@ -33,7 +33,7 @@ func Create(ctx context.Context, db *sqlx.DB, nst NewStationTypes, now time.Time
 	}
 
 	const q = `
-		INSERT INTO station_types
+		INSERT INTO station_type
 		  (id, name, description, date_created, date_updated)
 		VALUES ($1, $2, $3, $4, $5)`
 
@@ -53,33 +53,33 @@ func Create(ctx context.Context, db *sqlx.DB, nst NewStationTypes, now time.Time
 }
 
 // List gets all StationTypes from the database.
-func List(ctx context.Context, db *sqlx.DB) ([]StationTypes, error) {
-	station_types := []StationTypes{}
+func List(ctx context.Context, db *sqlx.DB) ([]StationType, error) {
+	station_type := []StationType{}
 
 	const q = `
 		SELECT
 			id, name, description, date_created, date_updated
-		FROM station_types`
+		FROM station_type`
 
-	if err := db.SelectContext(ctx, &station_types, q); err != nil {
+	if err := db.SelectContext(ctx, &station_type, q); err != nil {
 		return nil, errors.Wrap(err, "selecting station types")
 	}
 
-	return station_types, nil
+	return station_type, nil
 }
 
 // Retrieve gets a specific StationType from the database.
-func Retrieve(ctx context.Context, db *sqlx.DB, id string) (*StationTypes, error) {
+func Retrieve(ctx context.Context, db *sqlx.DB, id string) (*StationType, error) {
 	if _, err := uuid.Parse(id); err != nil {
 		return nil, ErrInvalidID
 	}
 
-	var st StationTypes
+	var st StationType
 
 	const q = `
 		SELECT
 			id, name, description, date_created, date_updated
-		FROM station_types
+		FROM station_type
 		WHERE id = $1`
 
 	if err := db.GetContext(ctx, &st, q, id); err != nil {
