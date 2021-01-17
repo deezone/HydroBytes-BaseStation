@@ -18,6 +18,7 @@ type StationType struct {
 	Id          string    `db:"id"           json:"id"`
 	Name        string    `db:"name"         json:"name"`
 	Description string    `db:"description"  json:"description"`
+	Stations    int       `db:"stations"     json:"stations"`
 	DateCreated time.Time `db:"date_created" json:"date_created"`
 	DateUpdated time.Time `db:"date_updated" json:"date_updated"`
 }

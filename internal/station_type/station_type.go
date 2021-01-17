@@ -58,8 +58,15 @@ func List(ctx context.Context, db *sqlx.DB) ([]StationType, error) {
 
 	const q = `
 		SELECT
-			id, name, description, date_created, date_updated
-		FROM station_type`
+			station_type.id,
+			station_type.name,
+			station_type.description,
+			COUNT(station.id) AS stations,
+			station_type.date_created,
+			station_type.date_updated
+		FROM station_type
+		  LEFT JOIN station ON station_type.id = station.station_type_id
+		GROUP BY station_type.id`
 
 	if err := db.SelectContext(ctx, &station_type, q); err != nil {
 		return nil, errors.Wrap(err, "selecting station types")
@@ -78,9 +85,16 @@ func Retrieve(ctx context.Context, db *sqlx.DB, id string) (*StationType, error)
 
 	const q = `
 		SELECT
-			id, name, description, date_created, date_updated
+			station_type.id,
+			station_type.name,
+			station_type.description,
+			COUNT(station.id) AS stations,
+			station_type.date_created,
+			station_type.date_updated
 		FROM station_type
-		WHERE id = $1`
+		  LEFT JOIN station ON station_type.id = station.station_type_id
+		WHERE station_type.id = $1
+		GROUP BY station_type.id`
 
 	if err := db.GetContext(ctx, &st, q, id); err != nil {
 		if err == sql.ErrNoRows {
