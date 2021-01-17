@@ -17,11 +17,11 @@ func API(db *sqlx.DB, log *log.Logger) http.Handler {
 
 	app := web.NewApp(log)
 
-	st := StationTypes{db: db, log: log}
+	st := StationType{db: db, log: log}
 
 	app.Handle(http.MethodGet, "/v1/station-types", st.List)
-	app.Handle(http.MethodGet, "/v1/station-types/{id}", st.Retrieve)
-	app.Handle(http.MethodPost, "/v1/station-types", st.Create)
+	app.Handle(http.MethodGet, "/v1/station-type/{id}", st.Retrieve)
+	app.Handle(http.MethodPost, "/v1/station-type", st.Create)
 
 	return app
 }

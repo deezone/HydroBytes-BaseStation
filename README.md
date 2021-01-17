@@ -51,8 +51,8 @@ courses at **[Ardan Labs](https://education.ardanlabs.com/collections?category=c
 
 - supported requests to `localhost:8000`:
   - `GET /v1/station-types`
-  - `GET /v1/station-types/{id}`
-  - `POST /v1/station-types`
+  - `GET /v1/station-type/{id}`
+  - `POST /v1/station-type`
 
 #### Admin tools
 
@@ -87,8 +87,8 @@ Seeding complete
 - Unit Tests
 
 ```
-> go test ./internal/station_types
-ok  	github.com/deezone/HydroBytes-BaseStation/internal/station_types	5.546s
+> go test ./internal/station_type
+ok  	github.com/deezone/HydroBytes-BaseStation/internal/station_type	5.546s
 ```
 
 - Functional tests

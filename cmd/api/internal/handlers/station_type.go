@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"github.com/pkg/errors"
 	// Core packages
 	"log"
 	"net/http"
@@ -9,34 +8,35 @@ import (
 
 	// Internal packages
 	"github.com/deezone/HydroBytes-BaseStation/internal/platform/web"
-	"github.com/deezone/HydroBytes-BaseStation/internal/station_types"
+	"github.com/deezone/HydroBytes-BaseStation/internal/station_type"
 
 	// Third party packages
 	"github.com/go-chi/chi"
+	"github.com/pkg/errors"
 	"github.com/jmoiron/sqlx"
 )
 
-type StationTypes struct {
+type StationType struct {
 	db *sqlx.DB
 	log *log.Logger
 }
 
 // Create decodes the body of a request to create a new station type. The full
 // station type with generated fields is sent back in the response.
-func (st *StationTypes) Create(w http.ResponseWriter, r *http.Request) error {
+func (st *StationType) Create(w http.ResponseWriter, r *http.Request) error {
 
-	var nst station_types.NewStationTypes
+	var nst station_type.NewStationType
 
 	if err := web.Decode(r, &nst); err != nil {
 		return errors.Wrap(err, "decoding new station tyoe")
 	}
 
-	station_type, err := station_types.Create(r.Context(), st.db, nst, time.Now())
+	new_type, err := station_type.Create(r.Context(), st.db, nst, time.Now())
 	if err != nil {
 		return errors.Wrap(err, "creating new station type")
 	}
 
-	return web.Respond(w, &station_type, http.StatusCreated)
+	return web.Respond(w, &new_type, http.StatusCreated)
 }
 
 /**
@@ -49,9 +49,9 @@ func (st *StationTypes) Create(w http.ResponseWriter, r *http.Request) error {
  * Note: If you open localhost:8000 in your browser, you may notice double requests being made. This happens because
  * the browser sends a request in the background for a website favicon. More the reason to use Postman to test!
  */
-func (st *StationTypes) List(w http.ResponseWriter, r *http.Request) error {
+func (st *StationType) List(w http.ResponseWriter, r *http.Request) error {
 
-	list, err := station_types.List(r.Context(), st.db)
+	list, err := station_type.List(r.Context(), st.db)
 	if err != nil {
 		return errors.Wrap(err, "getting station tyoe list")
 	}
@@ -60,20 +60,20 @@ func (st *StationTypes) List(w http.ResponseWriter, r *http.Request) error {
 }
 
 // Retrieve finds a single station type identified by an ID in the request URL.
-func (st *StationTypes) Retrieve(w http.ResponseWriter, r *http.Request) error {
+func (st *StationType) Retrieve(w http.ResponseWriter, r *http.Request) error {
 	id := chi.URLParam(r, "id")
 
-	station_type, err := station_types.Retrieve(r.Context(), st.db, id)
+	types, err := station_type.Retrieve(r.Context(), st.db, id)
 	if err != nil {
 		switch err {
-		case station_types.ErrNotFound:
+		case station_type.ErrNotFound:
 			return web.NewRequestError(err, http.StatusNotFound)
-		case station_types.ErrInvalidID:
+		case station_type.ErrInvalidID:
 			return web.NewRequestError(err, http.StatusBadRequest)
 		default:
 			return errors.Wrapf(err, "getting station type %q", id)
 		}
 	}
 
-	return web.Respond(w, station_type, http.StatusOK)
+	return web.Respond(w, types, http.StatusOK)
 }
