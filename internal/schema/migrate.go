@@ -27,7 +27,24 @@ CREATE TABLE station_type (
 	PRIMARY KEY (id)
 );`,
 	},
+	{
+		Version:     2,
+		Description: "Add station",
+		Script: `
+CREATE TABLE station (
+	id              UUID,
+	station_type_id UUID,
+	name            TEXT,
+	description     TEXT,
+	x_location      INT,
+	y_location      INT,
+	date_created    TIMESTAMP,
+	date_updated    TIMESTAMP,
 
+	PRIMARY KEY (id),
+	FOREIGN KEY (station_type_id) REFERENCES station_type(id) ON DELETE CASCADE
+);`,
+	},
 }
 
 // Migrate attempts to bring the schema for db up to date with the migrations

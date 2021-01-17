@@ -23,6 +23,10 @@ INSERT INTO station_type (id, name, description, date_created, date_updated) VAL
 	('72f8b983-3eb4-48db-9ed0-e45cc6bd716b', 'Water', 'Management of water resources. Controls water levels in resavour and impliments irrigation.', '2021-01-01 00:00:02.000001+00', '2021-01-01 00:00:02.000001+00'),
     ('5c86bbaa-4ef8-11eb-ae93-0242ac130002', 'Plant', 'Monitors and reports plant health.', '2021-01-01 00:00:03.000001+00', '2021-01-01 00:00:03.000001+00')
 	ON CONFLICT DO NOTHING;
+
+INSERT INTO station (id, station_type_id, name, description, location_x, location_y, date_created, date_updated) VALUES
+	('33539d91-7823-4169-8fed-31494ac2c22a', 'a2b0639f-2cc6-44b8-b97b-15d69dbb511e', 'Base Station One', 'Some description of Base Station One', 1, 1)
+	ON CONFLICT DO NOTHING;
 `
 
 // Seed runs the set of seed-data queries against db. The queries are ran in a
