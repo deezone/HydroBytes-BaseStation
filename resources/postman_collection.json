@@ -106,14 +106,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{SERVER}}/v1/station-types/a2b0639f-2cc6-44b8-b97b-15d69dbb511e",
+					"raw": "{{SERVER}}/v1/station-type/fc935253-83af-47e7-a7c8-9f9ee182b34e",
 					"host": [
 						"{{SERVER}}"
 					],
 					"path": [
 						"v1",
-						"station-types",
-						"a2b0639f-2cc6-44b8-b97b-15d69dbb511e"
+						"station-type",
+						"fc935253-83af-47e7-a7c8-9f9ee182b34e"
 					]
 				}
 			},
@@ -141,16 +141,21 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"name\": \"Test Station\",\n\t\"description\": \"Test description\"\n}"
+					"raw": "{\n    \"name\": \"Test name3\",\n    \"description\": \"Test description3\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
 				},
 				"url": {
-					"raw": "{{SERVER}}/v1/station-types",
+					"raw": "{{SERVER}}/v1/station-type",
 					"host": [
 						"{{SERVER}}"
 					],
 					"path": [
 						"v1",
-						"station-types"
+						"station-type"
 					]
 				}
 			},
@@ -181,13 +186,13 @@
 					"raw": "{\n\t\"name\": \"New Test Station\"\n}"
 				},
 				"url": {
-					"raw": "{{SERVER}}/v1/station-types/a2b0639f-2cc6-44b8-b97b-15d69dbb511e",
+					"raw": "{{SERVER}}/v1/station-type/a2b0639f-2cc6-44b8-b97b-15d69dbb511e",
 					"host": [
 						"{{SERVER}}"
 					],
 					"path": [
 						"v1",
-						"station-types",
+						"station-type",
 						"a2b0639f-2cc6-44b8-b97b-15d69dbb511e"
 					]
 				}
@@ -210,13 +215,13 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "{{SERVER}}/v1/station-types/72f8b983-3eb4-48db-9ed0-e45cc6bd716b",
+					"raw": "{{SERVER}}/v1/station-type/72f8b983-3eb4-48db-9ed0-e45cc6bd716b",
 					"host": [
 						"{{SERVER}}"
 					],
 					"path": [
 						"v1",
-						"station-types",
+						"station-type",
 						"72f8b983-3eb4-48db-9ed0-e45cc6bd716b"
 					]
 				}
@@ -239,13 +244,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{SERVER}}/v1/station-types/a2b0639f-2cc6-44b8-b97b-15d69dbb511e/stations",
+					"raw": "{{SERVER}}/v1/station-type/a2b0639f-2cc6-44b8-b97b-15d69dbb511e/stations",
 					"host": [
 						"{{SERVER}}"
 					],
 					"path": [
 						"v1",
-						"station-types",
+						"station-type",
 						"a2b0639f-2cc6-44b8-b97b-15d69dbb511e",
 						"stations"
 					]
