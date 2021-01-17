@@ -36,8 +36,8 @@ CREATE TABLE station (
 	station_type_id UUID,
 	name            TEXT,
 	description     TEXT,
-	x_location      INT,
-	y_location      INT,
+	location_x      INT,
+	location_y      INT,
 	date_created    TIMESTAMP,
 	date_updated    TIMESTAMP,
 

@@ -31,12 +31,12 @@ func (st *StationType) Create(w http.ResponseWriter, r *http.Request) error {
 		return errors.Wrap(err, "decoding new station type")
 	}
 
-	newType, err := station_type.Create(r.Context(), st.db, nst, time.Now())
+	stationType, err := station_type.Create(r.Context(), st.db, nst, time.Now())
 	if err != nil {
 		return errors.Wrap(err, "creating new station type")
 	}
 
-	return web.Respond(w, &newType, http.StatusCreated)
+	return web.Respond(w, &stationType, http.StatusCreated)
 }
 
 /**
@@ -63,7 +63,7 @@ func (st *StationType) List(w http.ResponseWriter, r *http.Request) error {
 func (st *StationType) Retrieve(w http.ResponseWriter, r *http.Request) error {
 	id := chi.URLParam(r, "id")
 
-	types, err := station_type.Retrieve(r.Context(), st.db, id)
+	stationTypes, err := station_type.Retrieve(r.Context(), st.db, id)
 	if err != nil {
 		switch err {
 		case station_type.ErrNotFound:
@@ -75,7 +75,7 @@ func (st *StationType) Retrieve(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	return web.Respond(w, types, http.StatusOK)
+	return web.Respond(w, stationTypes, http.StatusOK)
 }
 
 // AddStation creates a new Station for a particular station_type. It looks for a JSON
@@ -83,12 +83,12 @@ func (st *StationType) Retrieve(w http.ResponseWriter, r *http.Request) error {
 func (st *StationType) AddStation(w http.ResponseWriter, r *http.Request) error {
 	var ns station_type.NewStation
 	if err := web.Decode(r, &ns); err != nil {
-		return errors.Wrap(err, "decoding new sale")
+		return errors.Wrap(err, "decoding new station")
 	}
 
-	productID := chi.URLParam(r, "id")
+	stationTypeId := chi.URLParam(r, "id")
 
-	station, err := station_type.AddStation(r.Context(), st.db, ns, productID, time.Now())
+	station, err := station_type.AddStation(r.Context(), st.db, ns, stationTypeId, time.Now())
 	if err != nil {
 		return errors.Wrap(err, "adding new sale")
 	}
