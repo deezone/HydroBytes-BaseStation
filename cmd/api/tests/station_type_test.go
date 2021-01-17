@@ -41,7 +41,7 @@ func TestStationType(t *testing.T) {
 	tests := StationTypeTests{app: handlers.API(db, log)}
 
 	t.Run("List", tests.List)
-	t.Run("StationTypesCRUD", tests.StationTypeCRUD)
+	t.Run("StationTypeCRUD", tests.StationTypeCRUD)
 }
 
 // StationTypesTests holds methods for each station types subtest. This type allows
