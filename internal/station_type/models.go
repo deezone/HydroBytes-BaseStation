@@ -1,4 +1,4 @@
-package station_types
+package station_type
 
 import (
 	// Core packages
@@ -6,7 +6,7 @@ import (
 )
 
 /**
- * StationTypes is a type of station in the automated garden system.
+ * StationType is a type of station in the automated garden system.
  *
  * Note: use of "stuct tags" (ex: `json:"id"`) to manage the names of properties to be lowercase and snake_case. Due to
  * the use of case for visibility in Go "id" rather and "Id" would result in the value being excluded in the JSON
@@ -14,7 +14,7 @@ import (
  *
  * Note: the use of db:"id" allows renaming to map to the column used in the database
  */
-type StationTypes struct {
+type StationType struct {
 	Id          string    `db:"id"           json:"id"`
 	Name        string    `db:"name"         json:"name"`
 	Description string    `db:"description"  json:"description"`
@@ -22,8 +22,8 @@ type StationTypes struct {
 	DateUpdated time.Time `db:"date_updated" json:"date_updated"`
 }
 
-// NewStationTypes is what we require from clients when adding a StationType.
-type NewStationTypes struct {
+// NewStationType is what we require from clients when adding a StationType.
+type NewStationType struct {
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 }
