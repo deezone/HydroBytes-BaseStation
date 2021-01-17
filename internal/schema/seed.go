@@ -25,7 +25,11 @@ INSERT INTO station_type (id, name, description, date_created, date_updated) VAL
 	ON CONFLICT DO NOTHING;
 
 INSERT INTO station (id, station_type_id, name, description, location_x, location_y, date_created, date_updated) VALUES
-	('33539d91-7823-4169-8fed-31494ac2c22a', 'a2b0639f-2cc6-44b8-b97b-15d69dbb511e', 'Base Station One', 'Some description of Base Station One', 1, 1)
+	('ddd3f222-590c-11eb-ae93-0242ac130002', 'a2b0639f-2cc6-44b8-b97b-15d69dbb511e', 'Base Station One', 'Some description of Base Station One', 1, 1, '2021-01-01 00:00:01.000001+00', '2021-01-01 00:00:01.000001+00'),
+    ('ee72a90c-590c-11eb-ae93-0242ac130002', '72f8b983-3eb4-48db-9ed0-e45cc6bd716b', 'Water Station One', 'Some description of Water Station One', 2, 2, '2021-01-01 00:00:02.000001+00', '2021-01-01 00:00:02.000001+00'),
+    ('f676f266-590c-11eb-ae93-0242ac130002', '5c86bbaa-4ef8-11eb-ae93-0242ac130002', 'Plant Station One', 'Some description of Plant Station One', 3, 3, '2021-01-01 00:00:03.000001+00', '2021-01-01 00:00:03.000001+00'),
+    ('feaa0806-590c-11eb-ae93-0242ac130002', '5c86bbaa-4ef8-11eb-ae93-0242ac130002', 'Plant Station Two', 'Some description of Plant Station Two', 4, 3, '2021-01-01 00:00:04.000001+00', '2021-01-01 00:00:04.000001+00'),
+    ('0690d086-590d-11eb-ae93-0242ac130002', '5c86bbaa-4ef8-11eb-ae93-0242ac130002', 'Plant Station Three', 'Some description of Plant Station Three', 5, 3, '2021-01-01 00:00:05.000001+00', '2021-01-01 00:00:05.000001+00')
 	ON CONFLICT DO NOTHING;
 `
 
