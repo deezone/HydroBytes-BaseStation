@@ -22,13 +22,13 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-// TestStationTypes runs a series of tests to exercise StationTypes behavior from the
+// TestStationType runs a series of tests to exercise StationTypes behavior from the
 // API level. The subtests all share the same database and application for
 // speed and convenience. The downside is the order the tests are run matters.
 // One test may break if other tests are not run before it. If a particular
 // subtest needs a fresh instance of the application it can make it or it
 // should be its own Test* function.
-func TestStationTypes(t *testing.T) {
+func TestStationType(t *testing.T) {
 	db, teardown := tests.NewUnit(t)
 	defer teardown()
 
@@ -38,20 +38,20 @@ func TestStationTypes(t *testing.T) {
 
 	log := log.New(os.Stderr, "TEST : ", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
 
-	tests := StationTypesTests{app: handlers.API(db, log)}
+	tests := StationTypeTests{app: handlers.API(db, log)}
 
 	t.Run("List", tests.List)
-	t.Run("StationTypesCRUD", tests.StationTypesCRUD)
+	t.Run("StationTypesCRUD", tests.StationTypeCRUD)
 }
 
 // StationTypesTests holds methods for each station types subtest. This type allows
 // passing dependencies for tests while still providing a convenient syntax
 // when subtests are registered.
-type StationTypesTests struct {
+type StationTypeTests struct {
 	app http.Handler
 }
 
-func (st *StationTypesTests) List(t *testing.T) {
+func (st *StationTypeTests) List(t *testing.T) {
 	req := httptest.NewRequest("GET", "/v1/station-types", nil)
 	resp := httptest.NewRecorder()
 
@@ -95,13 +95,13 @@ func (st *StationTypesTests) List(t *testing.T) {
 	}
 }
 
-func (st *StationTypesTests) StationTypesCRUD(t *testing.T) {
+func (st *StationTypeTests) StationTypeCRUD(t *testing.T) {
 	var actual map[string]interface{}
 
 	{ // CREATE
 		body := strings.NewReader(`{"name":"stationtype0","description":"Test description 0"}`)
 
-		req := httptest.NewRequest("POST", "/v1/station-types", body)
+		req := httptest.NewRequest("POST", "/v1/station-type", body)
 		req.Header.Set("Content-Type", "application/json")
 		resp := httptest.NewRecorder()
 
@@ -139,7 +139,7 @@ func (st *StationTypesTests) StationTypesCRUD(t *testing.T) {
 	}
 
 	{ // READ
-		url := fmt.Sprintf("/v1/station-types/%s", actual["id"])
+		url := fmt.Sprintf("/v1/station-type/%s", actual["id"])
 		req := httptest.NewRequest("GET", url, nil)
 		req.Header.Set("Content-Type", "application/json")
 		resp := httptest.NewRecorder()
