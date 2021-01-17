@@ -77,3 +77,33 @@ func (st *StationType) Retrieve(w http.ResponseWriter, r *http.Request) error {
 
 	return web.Respond(w, types, http.StatusOK)
 }
+
+// AddStation creates a new Station for a particular station_type. It looks for a JSON
+// object in the request body. The full model is returned to the caller.
+func (st *StationType) AddStation(w http.ResponseWriter, r *http.Request) error {
+	var ns station_type.NewStation
+	if err := web.Decode(r, &ns); err != nil {
+		return errors.Wrap(err, "decoding new sale")
+	}
+
+	productID := chi.URLParam(r, "id")
+
+	station, err := station_type.AddStation(r.Context(), st.db, ns, productID, time.Now())
+	if err != nil {
+		return errors.Wrap(err, "adding new sale")
+	}
+
+	return web.Respond(w, station, http.StatusCreated)
+}
+
+// ListSales gets all sales for a particular product.
+func (st *StationType) ListStations(w http.ResponseWriter, r *http.Request) error {
+	id := chi.URLParam(r, "id")
+
+	list, err := station_type.ListStations(r.Context(), st.db, id)
+	if err != nil {
+		return errors.Wrap(err, "getting sales list")
+	}
+
+	return web.Respond(w, list, http.StatusOK)
+}
