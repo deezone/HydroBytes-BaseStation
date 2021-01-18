@@ -1,4 +1,4 @@
-package tests
+package station_type_tests
 
 import (
 	// Core Packages

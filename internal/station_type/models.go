@@ -45,6 +45,6 @@ type Station struct {
 type NewStation struct {
 	Name          string    `db:"name"            json:"name" validate:"required"`
 	Description   string    `db:"description"     json:"description"`
-	LocationX     int       `db:"location_x"      json:"location_x" validate:"gte=0"`
-	LocationY     int       `db:"location_y"      json:"location_y" validate:"gte=0"`
+	LocationX     int       `db:"location_x"      json:"location_x" validate:"required,gte=0"`
+	LocationY     int       `db:"location_y"      json:"location_y" validate:"required,gte=0"`
 }

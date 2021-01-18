@@ -11,7 +11,7 @@ import (
 	// Third-party packages
 	en "github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
-	validator "gopkg.in/go-playground/validator.v9"
+	validator "gopkg.in/go-playground/validator.v9"  // https://github.com/go-playground/validator#package-validator
 	en_translations "gopkg.in/go-playground/validator.v9/translations/en"
 )
 

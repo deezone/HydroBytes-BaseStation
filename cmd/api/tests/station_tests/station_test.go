@@ -1,4 +1,4 @@
-package tests
+package station_tests
 
 import (
 	// Core Packages
@@ -126,8 +126,8 @@ func (st *StationTests) StationCRUD(t *testing.T) {
 	{ // CREATE
 		body := strings.NewReader(`{"name":"station0","description":"Test description 0", "location_x":123, "location_y": 789}`)
 
-		// Create new station of type Plant StationType (5c86bbaa-4ef8-11eb-ae93-0242ac130002) as defined in the seed data
-		req := httptest.NewRequest("POST", "/v1/station-type/5c86bbaa-4ef8-11eb-ae93-0242ac130002/station", body)
+		// Create new station of type Water StationType (72f8b983-3eb4-48db-9ed0-e45cc6bd716b) as defined in the seed data
+		req := httptest.NewRequest("POST", "/v1/station-type/72f8b983-3eb4-48db-9ed0-e45cc6bd716b/station", body)
 		req.Header.Set("Content-Type", "application/json")
 		resp := httptest.NewRecorder()
 
@@ -153,6 +153,7 @@ func (st *StationTests) StationCRUD(t *testing.T) {
 
 		expected := map[string]interface{}{
 			"id":           actual["id"],
+			"station_type_id": "72f8b983-3eb4-48db-9ed0-e45cc6bd716b",
 			"date_created": actual["date_created"],
 			"date_updated": actual["date_updated"],
 			"name":         "station0",

@@ -41,7 +41,8 @@ func (a *App) Handle(method, url string, h Handler) {
 		if err != nil {
 
 			// Log the error.
-			a.log.Printf("ERROR : %+v", err)
+			// a.log.Printf("ERROR : %+v", err)
+			a.log.Println("ERROR : Validation error")
 
 			// Respond to the error.
 			if err := RespondError(w, err); err != nil {
