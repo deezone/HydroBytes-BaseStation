@@ -56,6 +56,6 @@ func TestStationTypeList(t *testing.T) {
 		t.Fatalf("listing station types: %s", err)
 	}
 	if exp, got := 3, len(sts); exp != got {
-		t.Fatalf("expected station types list size %v, got %v", exp, got)
+		t.Fatalf("expected station type list size %v, got %v", exp, got)
 	}
 }

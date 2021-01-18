@@ -14,14 +14,14 @@ import (
 
 // Predefined errors identify expected failure conditions.
 var (
-	// ErrNotFound is used when a specific StationTypes is requested but does not exist.
+	// ErrNotFound is used when a specific StationType is requested but does not exist.
 	ErrNotFound = errors.New("station type not found")
 
 	// ErrInvalidID is used when an invalid UUID is provided.
 	ErrInvalidID = errors.New("ID is not in its proper UUID format")
 )
 
-// Create adds a StationType to the database. It returns the created StationTypes with
+// Create adds a StationType to the database. It returns the created StationType with
 // fields like ID and DateCreated populated.
 func Create(ctx context.Context, db *sqlx.DB, nst NewStationType, now time.Time) (*StationType, error) {
 	st := StationType{
@@ -52,14 +52,21 @@ func Create(ctx context.Context, db *sqlx.DB, nst NewStationType, now time.Time)
 	return &st, nil
 }
 
-// List gets all StationTypes from the database.
+// List gets all StationType from the database.
 func List(ctx context.Context, db *sqlx.DB) ([]StationType, error) {
 	station_type := []StationType{}
 
 	const q = `
 		SELECT
-			id, name, description, date_created, date_updated
-		FROM station_type`
+			station_type.id,
+			station_type.name,
+			station_type.description,
+			COUNT(station.id) AS stations,
+			station_type.date_created,
+			station_type.date_updated
+		FROM station_type
+		  LEFT JOIN station ON station_type.id = station.station_type_id
+		GROUP BY station_type.id`
 
 	if err := db.SelectContext(ctx, &station_type, q); err != nil {
 		return nil, errors.Wrap(err, "selecting station types")
@@ -78,9 +85,16 @@ func Retrieve(ctx context.Context, db *sqlx.DB, id string) (*StationType, error)
 
 	const q = `
 		SELECT
-			id, name, description, date_created, date_updated
+			station_type.id,
+			station_type.name,
+			station_type.description,
+			COUNT(station.id) AS stations,
+			station_type.date_created,
+			station_type.date_updated
 		FROM station_type
-		WHERE id = $1`
+		  LEFT JOIN station ON station_type.id = station.station_type_id
+		WHERE station_type.id = $1
+		GROUP BY station_type.id`
 
 	if err := db.GetContext(ctx, &st, q, id); err != nil {
 		if err == sql.ErrNoRows {

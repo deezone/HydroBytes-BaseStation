@@ -12,8 +12,8 @@ import (
 
 	// Third party packages
 	"github.com/go-chi/chi"
-	"github.com/pkg/errors"
 	"github.com/jmoiron/sqlx"
+	"github.com/pkg/errors"
 )
 
 type StationType struct {
@@ -28,15 +28,15 @@ func (st *StationType) Create(w http.ResponseWriter, r *http.Request) error {
 	var nst station_type.NewStationType
 
 	if err := web.Decode(r, &nst); err != nil {
-		return errors.Wrap(err, "decoding new station tyoe")
+		return errors.Wrap(err, "decoding new station type")
 	}
 
-	new_type, err := station_type.Create(r.Context(), st.db, nst, time.Now())
+	stationType, err := station_type.Create(r.Context(), st.db, nst, time.Now())
 	if err != nil {
 		return errors.Wrap(err, "creating new station type")
 	}
 
-	return web.Respond(w, &new_type, http.StatusCreated)
+	return web.Respond(w, &stationType, http.StatusCreated)
 }
 
 /**
@@ -53,7 +53,7 @@ func (st *StationType) List(w http.ResponseWriter, r *http.Request) error {
 
 	list, err := station_type.List(r.Context(), st.db)
 	if err != nil {
-		return errors.Wrap(err, "getting station tyoe list")
+		return errors.Wrap(err, "getting station type list")
 	}
 
 	return web.Respond(w, list, http.StatusOK)
@@ -63,7 +63,7 @@ func (st *StationType) List(w http.ResponseWriter, r *http.Request) error {
 func (st *StationType) Retrieve(w http.ResponseWriter, r *http.Request) error {
 	id := chi.URLParam(r, "id")
 
-	types, err := station_type.Retrieve(r.Context(), st.db, id)
+	stationTypes, err := station_type.Retrieve(r.Context(), st.db, id)
 	if err != nil {
 		switch err {
 		case station_type.ErrNotFound:
@@ -75,5 +75,35 @@ func (st *StationType) Retrieve(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	return web.Respond(w, types, http.StatusOK)
+	return web.Respond(w, stationTypes, http.StatusOK)
+}
+
+// AddStation creates a new Station for a particular station_type. It looks for a JSON
+// object in the request body. The full model is returned to the caller.
+func (st *StationType) AddStation(w http.ResponseWriter, r *http.Request) error {
+	var ns station_type.NewStation
+	if err := web.Decode(r, &ns); err != nil {
+		return errors.Wrap(err, "decoding new station")
+	}
+
+	stationTypeId := chi.URLParam(r, "id")
+
+	station, err := station_type.AddStation(r.Context(), st.db, ns, stationTypeId, time.Now())
+	if err != nil {
+		return errors.Wrap(err, "adding new sale")
+	}
+
+	return web.Respond(w, station, http.StatusCreated)
+}
+
+// ListSales gets all sales for a particular product.
+func (st *StationType) ListStations(w http.ResponseWriter, r *http.Request) error {
+	id := chi.URLParam(r, "id")
+
+	list, err := station_type.ListStations(r.Context(), st.db, id)
+	if err != nil {
+		return errors.Wrap(err, "getting sales list")
+	}
+
+	return web.Respond(w, list, http.StatusOK)
 }

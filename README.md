@@ -50,9 +50,11 @@ courses at **[Ardan Labs](https://education.ardanlabs.com/collections?category=c
 ```
 
 - supported requests to `localhost:8000`:
-  - `GET /v1/station-types`
-  - `GET /v1/station-type/{id}`
+  - `GET  /v1/station-types`
+  - `GET  /v1/station-type/{id}`
   - `POST /v1/station-type`
+  - `GET  /v1/station-type/{station-type-id}/stations`
+  - `POST /v1/station-type/{station-type-id}/station`
 
 #### Admin tools
 
@@ -84,15 +86,23 @@ Seeding complete
 
 #### Tests
 
-- Unit Tests
+- **Unit Tests**
 
 ```
 > go test ./internal/station_type
-ok  	github.com/deezone/HydroBytes-BaseStation/internal/station_type	5.546s
+ok  	github.com/deezone/HydroBytes-BaseStation/internal/station_type	6.805s
 ```
 
-- Functional tests
+NOTE: test coverage reports:
 ```
+alais gotwc='go test -coverprofile=coverage.out && go tool cover -html=coverage.out && rm coverage.out'
+```
+
+- **Functional tests**
+```
+# bust cache
+> go clean -testcache
+
 > go test ./cmd/api/tests
-ok  	github.com/deezone/HydroBytes-BaseStation/cmd/api/tests	2.971s
+ok  	github.com/deezone/HydroBytes-BaseStation/cmd/api/tests. 6.373s
 ```
