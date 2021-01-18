@@ -3,7 +3,6 @@ package tests
 import (
 	// Core Packages
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -22,13 +21,13 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-// TestStationType runs a series of tests to exercise StationTypes behavior from the
+// TestStation runs a series of tests to exercise Station behavior from the
 // API level. The subtests all share the same database and application for
 // speed and convenience. The downside is the order the tests are run matters.
 // One test may break if other tests are not run before it. If a particular
 // subtest needs a fresh instance of the application it can make it or it
 // should be its own Test* function.
-func TestStationType(t *testing.T) {
+func TestStation(t *testing.T) {
 	db, teardown := tests.NewUnit(t)
 	defer teardown()
 
@@ -38,21 +37,23 @@ func TestStationType(t *testing.T) {
 
 	log := log.New(os.Stderr, "TEST : ", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
 
-	tests := StationTypeTests{app: handlers.API(db, log)}
+	tests := StationTests{app: handlers.API(db, log)}
 
-	t.Run("List", tests.List)
-	// t.Run("StationTypeCRUD", tests.StationTypeCRUD)
+	t.Run("ListStations", tests.ListStations)
+	// t.Run("StationCRUD", tests.StationCRUD)
 }
 
-// StationTypesTests holds methods for each station types subtest. This type allows
+// StationTests holds methods for each station subtest. This type allows
 // passing dependencies for tests while still providing a convenient syntax
 // when subtests are registered.
-type StationTypeTests struct {
+type StationTests struct {
 	app http.Handler
 }
 
-func (st *StationTypeTests) List(t *testing.T) {
-	req := httptest.NewRequest("GET", "/v1/station-types", nil)
+func (st *StationTests) ListStations(t *testing.T) {
+
+	// Get list of stations by the Plant StationType (5c86bbaa-4ef8-11eb-ae93-0242ac130002) as defined in the seed data
+	req := httptest.NewRequest("GET", "/v1/station-type/5c86bbaa-4ef8-11eb-ae93-0242ac130002/stations", nil)
 	resp := httptest.NewRecorder()
 
 	st.app.ServeHTTP(resp, req)
@@ -68,28 +69,34 @@ func (st *StationTypeTests) List(t *testing.T) {
 
 	expected := []map[string]interface{}{
 		{
-			"id":           "5c86bbaa-4ef8-11eb-ae93-0242ac130002",
-			"name":         "Plant",
-			"description":  "Monitors and reports plant health.",
-			"stations":     float64(3),
-			"date_created": "2021-01-01T00:00:03.000001Z",
-			"date_updated": "2021-01-01T00:00:03.000001Z",
+			"id":              "f676f266-590c-11eb-ae93-0242ac130002",
+			"station_type_id": "5c86bbaa-4ef8-11eb-ae93-0242ac130002",
+			"name":            "Plant Station One",
+			"description":     "Some description of Plant Station One",
+			"location_x":      float64(3),
+			"location_y":      float64(3),
+			"date_created":    "2021-01-01T00:00:03.000001Z",
+			"date_updated":    "2021-01-01T00:00:03.000001Z",
 		},
 		{
-			"id":           "a2b0639f-2cc6-44b8-b97b-15d69dbb511e",
-			"name":         "Base",
-			"description":  "Coordinator for all station types - monitor, command and control. Access point to public Intenet.",
-			"stations":     float64(1),
-			"date_created": "2021-01-01T00:00:01.000001Z",
-			"date_updated": "2021-01-01T00:00:01.000001Z",
+			"id":              "feaa0806-590c-11eb-ae93-0242ac130002",
+			"station_type_id": "5c86bbaa-4ef8-11eb-ae93-0242ac130002",
+			"name":            "Plant Station Two",
+			"description":     "Some description of Plant Station Two",
+			"location_x":      float64(4),
+			"location_y":      float64(3),
+			"date_created":    "2021-01-01T00:00:04.000001Z",
+			"date_updated":    "2021-01-01T00:00:04.000001Z",
 		},
 		{
-			"id":           "72f8b983-3eb4-48db-9ed0-e45cc6bd716b",
-			"name":         "Water",
-			"description":  "Management of water resources. Controls water levels in resavour and impliments irrigation.",
-			"stations":     float64(1),
-			"date_created": "2021-01-01T00:00:02.000001Z",
-			"date_updated": "2021-01-01T00:00:02.000001Z",
+			"id":              "0690d086-590d-11eb-ae93-0242ac130002",
+			"station_type_id": "5c86bbaa-4ef8-11eb-ae93-0242ac130002",
+			"name":            "Plant Station Three",
+			"description":     "Some description of Plant Station Three",
+			"location_x":      float64(5),
+			"location_y":      float64(3),
+			"date_created":    "2021-01-01T00:00:05.000001Z",
+			"date_updated":    "2021-01-01T00:00:05.000001Z",
 		},
 	}
 
@@ -98,13 +105,14 @@ func (st *StationTypeTests) List(t *testing.T) {
 	}
 }
 
-func (st *StationTypeTests) StationTypeCRUD(t *testing.T) {
+func (st *StationTests) StationCRUD(t *testing.T) {
 	var actual map[string]interface{}
 
 	{ // CREATE
-		body := strings.NewReader(`{"name":"stationtype0","description":"Test description 0"}`)
+		body := strings.NewReader(`{"name":"station0","description":"Test description 0", "location_x":123, "location_y": 789}`)
 
-		req := httptest.NewRequest("POST", "/v1/station-type", body)
+		// Create new station of type Plant StationType (5c86bbaa-4ef8-11eb-ae93-0242ac130002) as defined in the seed data
+		req := httptest.NewRequest("POST", "/v1/station-type/5c86bbaa-4ef8-11eb-ae93-0242ac130002/station", body)
 		req.Header.Set("Content-Type", "application/json")
 		resp := httptest.NewRecorder()
 
@@ -132,35 +140,14 @@ func (st *StationTypeTests) StationTypeCRUD(t *testing.T) {
 			"id":           actual["id"],
 			"date_created": actual["date_created"],
 			"date_updated": actual["date_updated"],
-			"name":         "stationtype0",
+			"name":         "station0",
 			"description":  "Test description 0",
+			"location_x":   float64(123),
+			"location_y":   float64(789),
 		}
 
 		if diff := cmp.Diff(expected, actual); diff != "" {
 			t.Fatalf("Response did not match expected. Diff:\n%s", diff)
-		}
-	}
-
-	{ // READ
-		url := fmt.Sprintf("/v1/station-type/%s", actual["id"])
-		req := httptest.NewRequest("GET", url, nil)
-		req.Header.Set("Content-Type", "application/json")
-		resp := httptest.NewRecorder()
-
-		st.app.ServeHTTP(resp, req)
-
-		if http.StatusOK != resp.Code {
-			t.Fatalf("retrieving: expected status code %v, got %v", http.StatusOK, resp.Code)
-		}
-
-		var fetched map[string]interface{}
-		if err := json.NewDecoder(resp.Body).Decode(&fetched); err != nil {
-			t.Fatalf("decoding: %s", err)
-		}
-
-		// Fetched station type should match the one created.
-		if diff := cmp.Diff(actual, fetched); diff != "" {
-			t.Fatalf("Retrieved station type should match created. Diff:\n%s", diff)
 		}
 	}
 }
