@@ -25,7 +25,7 @@ type StationType struct {
 
 // NewStationType is what we require from clients when adding a StationType.
 type NewStationType struct {
-	Name        string    `json:"name"`
+	Name        string    `json:"name" validate:"required"`
 	Description string    `json:"description"`
 }
 
@@ -43,8 +43,8 @@ type Station struct {
 
 // NewStation is a what we require from clients when adding a BaseStation.
 type NewStation struct {
-	Name          string    `db:"name"            json:"name"`
+	Name          string    `db:"name"            json:"name" validate:"required"`
 	Description   string    `db:"description"     json:"description"`
-	LocationX     int       `db:"location_x"      json:"location_x"`
-	LocationY     int       `db:"location_y"      json:"location_y"`
+	LocationX     int       `db:"location_x"      json:"location_x" validate:"gte=0"`
+	LocationY     int       `db:"location_y"      json:"location_y" validate:"gte=0"`
 }
