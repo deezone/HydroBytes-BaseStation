@@ -18,6 +18,9 @@ import (
 // may need to be broken up.
 
 const seeds = `
+DELETE FROM station;
+DELETE FROM station_type;
+
 INSERT INTO station_type (id, name, description, date_created, date_updated) VALUES
 	('a2b0639f-2cc6-44b8-b97b-15d69dbb511e', 'Base', 'Coordinator for all station types - monitor, command and control. Access point to public Intenet.', '2021-01-01 00:00:01.000001+00', '2021-01-01 00:00:01.000001+00'),
 	('72f8b983-3eb4-48db-9ed0-e45cc6bd716b', 'Water', 'Management of water resources. Controls water levels in resavour and impliments irrigation.', '2021-01-01 00:00:02.000001+00', '2021-01-01 00:00:02.000001+00'),

@@ -1,4 +1,4 @@
-package tests
+package station_type_tests
 
 import (
 	// Core Packages
@@ -41,7 +41,8 @@ func TestStationType(t *testing.T) {
 	tests := StationTypeTests{app: handlers.API(db, log)}
 
 	t.Run("List", tests.List)
-	// t.Run("StationTypeCRUD", tests.StationTypeCRUD)
+	t.Run("CreateRequiresFields", tests.CreateRequiresFields)
+	t.Run("StationTypeCRUD", tests.StationTypeCRUD)
 }
 
 // StationTypesTests holds methods for each station types subtest. This type allows
@@ -98,6 +99,20 @@ func (st *StationTypeTests) List(t *testing.T) {
 	}
 }
 
+func (p *StationTypeTests) CreateRequiresFields(t *testing.T) {
+	body := strings.NewReader(`{}`)
+	req := httptest.NewRequest("POST", "/v1/station-type", body)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp := httptest.NewRecorder()
+
+	p.app.ServeHTTP(resp, req)
+
+	if resp.Code != http.StatusBadRequest {
+		t.Fatalf("getting: expected status code %v, got %v", http.StatusBadRequest, resp.Code)
+	}
+}
+
 func (st *StationTypeTests) StationTypeCRUD(t *testing.T) {
 	var actual map[string]interface{}
 
@@ -134,6 +149,7 @@ func (st *StationTypeTests) StationTypeCRUD(t *testing.T) {
 			"date_updated": actual["date_updated"],
 			"name":         "stationtype0",
 			"description":  "Test description 0",
+			"stations":     float64(0),
 		}
 
 		if diff := cmp.Diff(expected, actual); diff != "" {
