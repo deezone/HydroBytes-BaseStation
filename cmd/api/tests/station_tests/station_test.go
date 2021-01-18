@@ -40,7 +40,8 @@ func TestStation(t *testing.T) {
 	tests := StationTests{app: handlers.API(db, log)}
 
 	t.Run("ListStations", tests.ListStations)
-	// t.Run("StationCRUD", tests.StationCRUD)
+	t.Run("CreateRequiresFields", tests.CreateRequiresFields)
+	t.Run("StationCRUD", tests.StationCRUD)
 }
 
 // StationTests holds methods for each station subtest. This type allows
@@ -102,6 +103,20 @@ func (st *StationTests) ListStations(t *testing.T) {
 
 	if diff := cmp.Diff(expected, list); diff != "" {
 		t.Fatalf("Response did not match expected. Diff:\n%s", diff)
+	}
+}
+
+func (p *StationTests) CreateRequiresFields(t *testing.T) {
+	body := strings.NewReader(`{}`)
+	req := httptest.NewRequest("POST", "/v1/station-type/5c86bbaa-4ef8-11eb-ae93-0242ac130002/station", body)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp := httptest.NewRecorder()
+
+	p.app.ServeHTTP(resp, req)
+
+	if resp.Code != http.StatusBadRequest {
+		t.Fatalf("getting: expected status code %v, got %v", http.StatusBadRequest, resp.Code)
 	}
 }
 
