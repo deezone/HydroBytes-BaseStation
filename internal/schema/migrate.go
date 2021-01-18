@@ -1,6 +1,7 @@
 package schema
 
 import (
+	// Third-party packages
 	"github.com/GuiaBolso/darwin"
 	"github.com/jmoiron/sqlx"
 )
