@@ -106,3 +106,34 @@ func Retrieve(ctx context.Context, db *sqlx.DB, id string) (*StationType, error)
 
 	return &st, nil
 }
+
+// Update modifies data about a StationType. It will error if the specified ID is
+// invalid or does not reference an existing StationType.
+func Update(ctx context.Context, db *sqlx.DB, id string, update UpdateStationType, now time.Time) error {
+	st, err := Retrieve(ctx, db, id)
+	if err != nil {
+		return err
+	}
+
+	if update.Name != nil {
+		st.Name = *update.Name
+	}
+	if update.Description != nil {
+		st.Description = *update.Description
+	}
+	st.DateUpdated = now
+
+	const q = `UPDATE station_type SET
+		"name" = $2,
+		"description" = $3,
+		WHERE id = $1`
+	_, err = db.ExecContext(ctx, q, id,
+		st.Name,
+		st.Description,
+	)
+	if err != nil {
+		return errors.Wrap(err, "updating station tyoe")
+	}
+
+	return nil
+}
