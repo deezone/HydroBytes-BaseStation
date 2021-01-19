@@ -24,9 +24,10 @@ func API(db *sqlx.DB, log *log.Logger) http.Handler {
 	app.Handle(http.MethodPost, "/v1/station-type", st.Create)
 	app.Handle(http.MethodPut,  "/v1/station-type/{id}", st.Update)
 
-	app.Handle(http.MethodPost, "/v1/station-type/{id}/station", st.AddStation)
 	app.Handle(http.MethodGet,  "/v1/station-type/{id}/stations", st.ListStations)
-	app.Handle(http.MethodGet,  "/v1/station/{id}", st.AdjustStation)
+	app.Handle(http.MethodGet,  "/v1/station/{id}", st.RetrieveStation)
+	app.Handle(http.MethodPost, "/v1/station-type/{id}/station", st.AddStation)
+	app.Handle(http.MethodPut,  "/v1/station/{id}", st.AdjustStation)
 
 	return app
 }
