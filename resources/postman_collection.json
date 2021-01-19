@@ -259,6 +259,35 @@
 			"response": []
 		},
 		{
+			"name": "Get Station",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{Token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{SERVER}}/v1/station/a2b0639f-2cc6-44b8-b97b-15d69dbb511e",
+					"host": [
+						"{{SERVER}}"
+					],
+					"path": [
+						"v1",
+						"station",
+						"a2b0639f-2cc6-44b8-b97b-15d69dbb511e"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Add Station",
 			"request": {
 				"auth": {
@@ -330,6 +359,35 @@
 						"v1",
 						"station",
 						"d1add113-a33f-4c05-8d08-002b7adf8c0b"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Station",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{Token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{SERVER}}/v1/station/72f8b983-3eb4-48db-9ed0-e45cc6bd716b",
+					"host": [
+						"{{SERVER}}"
+					],
+					"path": [
+						"v1",
+						"station",
+						"72f8b983-3eb4-48db-9ed0-e45cc6bd716b"
 					]
 				}
 			},
