@@ -78,6 +78,34 @@ func (st *StationType) Retrieve(w http.ResponseWriter, r *http.Request) error {
 	return web.Respond(w, stationTypes, http.StatusOK)
 }
 
+// Update decodes the body of a request to update an existing station type. The ID
+// of the station type is part of the request URL.
+func (st *StationType) Update(w http.ResponseWriter, r *http.Request) error {
+	id := chi.URLParam(r, "id")
+
+	var update station_type.UpdateStationType
+	if err := web.Decode(r, &update); err != nil {
+		return errors.Wrap(err, "decoding product update")
+	}
+
+	if err := station_type.Update(r.Context(), st.db, id, update, time.Now()); err != nil {
+		switch err {
+		case station_type.ErrNotFound:
+			return web.NewRequestError(err, http.StatusNotFound)
+		case station_type.ErrInvalidID:
+			return web.NewRequestError(err, http.StatusBadRequest)
+		default:
+			return errors.Wrapf(err, "updating station type %q", id)
+		}
+	}
+
+	return web.Respond(w, nil, http.StatusNoContent)
+}
+
+/**
+ * Station handlers
+ */
+
 // AddStation creates a new Station for a particular station_type. It looks for a JSON
 // object in the request body. The full model is returned to the caller.
 func (st *StationType) AddStation(w http.ResponseWriter, r *http.Request) error {
@@ -106,4 +134,47 @@ func (st *StationType) ListStations(w http.ResponseWriter, r *http.Request) erro
 	}
 
 	return web.Respond(w, list, http.StatusOK)
+}
+
+// Retrieve finds a single station identified by an ID in the request URL.
+func (st *StationType) RetrieveStation(w http.ResponseWriter, r *http.Request) error {
+	id := chi.URLParam(r, "id")
+
+	station, err := station_type.RetrieveStation(r.Context(), st.db, id)
+	if err != nil {
+		switch err {
+		case station_type.ErrNotFound:
+			return web.NewRequestError(err, http.StatusNotFound)
+		case station_type.ErrInvalidID:
+			return web.NewRequestError(err, http.StatusBadRequest)
+		default:
+			return errors.Wrapf(err, "getting station %q", id)
+		}
+	}
+
+	return web.Respond(w, station, http.StatusOK)
+}
+
+// Update decodes the body of a request to update an existing station. The ID
+// of the station is part of the request URL.
+func (st *StationType) AdjustStation(w http.ResponseWriter, r *http.Request) error {
+	id := chi.URLParam(r, "id")
+
+	var update station_type.UpdateStation
+	if err := web.Decode(r, &update); err != nil {
+		return errors.Wrap(err, "decoding station update")
+	}
+
+	if err := station_type.AdjustStation(r.Context(), st.db, id, update, time.Now()); err != nil {
+		switch err {
+		case station_type.ErrNotFound:
+			return web.NewRequestError(err, http.StatusNotFound)
+		case station_type.ErrInvalidID:
+			return web.NewRequestError(err, http.StatusBadRequest)
+		default:
+			return errors.Wrapf(err, "updating station %q", id)
+		}
+	}
+
+	return web.Respond(w, nil, http.StatusNoContent)
 }
