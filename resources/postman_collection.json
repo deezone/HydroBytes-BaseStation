@@ -91,7 +91,7 @@
 			"response": []
 		},
 		{
-			"name": "Get Station Types",
+			"name": "Get Station Type",
 			"request": {
 				"auth": {
 					"type": "bearer",
@@ -106,14 +106,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{SERVER}}/v1/station-type/fc935253-83af-47e7-a7c8-9f9ee182b34e",
+					"raw": "{{SERVER}}/v1/station-type/a2b0639f-2cc6-44b8-b97b-15d69dbb511e",
 					"host": [
 						"{{SERVER}}"
 					],
 					"path": [
 						"v1",
 						"station-type",
-						"fc935253-83af-47e7-a7c8-9f9ee182b34e"
+						"a2b0639f-2cc6-44b8-b97b-15d69dbb511e"
 					]
 				}
 			},
@@ -141,7 +141,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"name\": \"Test name3\",\n    \"description\": \"Test description3\"\n}",
+					"raw": "{\n    \"name\": \"Test Station Tyoe\",\n    \"description\": \"Test station tyoe description\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -183,17 +183,17 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"name\": \"New Test Station\"\n}"
+					"raw": "{\n\t\"name\": \"New New Test Station Type\"\n}"
 				},
 				"url": {
-					"raw": "{{SERVER}}/v1/station-type/a2b0639f-2cc6-44b8-b97b-15d69dbb511e",
+					"raw": "{{SERVER}}/v1/station-type/d1add113-a33f-4c05-8d08-002b7adf8c0b",
 					"host": [
 						"{{SERVER}}"
 					],
 					"path": [
 						"v1",
 						"station-type",
-						"a2b0639f-2cc6-44b8-b97b-15d69dbb511e"
+						"d1add113-a33f-4c05-8d08-002b7adf8c0b"
 					]
 				}
 			},
@@ -244,14 +244,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{SERVER}}/v1/station-type/a2b0639f-2cc6-44b8-b97b-15d69dbb511e/stations",
+					"raw": "{{SERVER}}/v1/station-type/5c86bbaa-4ef8-11eb-ae93-0242ac130002/stations",
 					"host": [
 						"{{SERVER}}"
 					],
 					"path": [
 						"v1",
 						"station-type",
-						"a2b0639f-2cc6-44b8-b97b-15d69dbb511e",
+						"5c86bbaa-4ef8-11eb-ae93-0242ac130002",
 						"stations"
 					]
 				}
@@ -280,18 +280,56 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"quantity\": 2,\n\t\"paid\": 40\n}"
+					"raw": "{\n\t\"name\": \"Test station\",\n\t\"description\": \"Test station decription two\",\n    \"location_x\": 4,\n    \"location_y\": 5\n}"
 				},
 				"url": {
-					"raw": "{{SERVER}}/v1/stations-type/a2b0639f-2cc6-44b8-b97b-15d69dbb511e/station",
+					"raw": "{{SERVER}}/v1/station-type/72f8b983-3eb4-48db-9ed0-e45cc6bd716b/station",
 					"host": [
 						"{{SERVER}}"
 					],
 					"path": [
 						"v1",
-						"stations-type",
-						"a2b0639f-2cc6-44b8-b97b-15d69dbb511e",
+						"station-type",
+						"72f8b983-3eb4-48db-9ed0-e45cc6bd716b",
 						"station"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Station",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{Token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"New New Test Station Type\"\n}"
+				},
+				"url": {
+					"raw": "{{SERVER}}/v1/station/d1add113-a33f-4c05-8d08-002b7adf8c0b",
+					"host": [
+						"{{SERVER}}"
+					],
+					"path": [
+						"v1",
+						"station",
+						"d1add113-a33f-4c05-8d08-002b7adf8c0b"
 					]
 				}
 			},
