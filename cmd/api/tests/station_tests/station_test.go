@@ -192,8 +192,8 @@ func (st *StationTests) StationCRUD(t *testing.T) {
 	}
 
 	{ // UPDATE
-		body := strings.NewReader(`{"name":"UPDATED stationtype0","description":"UPDATED Test description 0"}`)
-		url := fmt.Sprintf("/v1/station-type/%s", actual["id"])
+		body := strings.NewReader(`{"name":"UPDATED station0","description":"UPDATED Test description 0", "location_x":456, "location_y": 123}`)
+		url := fmt.Sprintf("/v1/station/%s", actual["id"])
 		req := httptest.NewRequest("PUT", url, body)
 		req.Header.Set("Content-Type", "application/json")
 		resp := httptest.NewRecorder()
@@ -224,13 +224,15 @@ func (st *StationTests) StationCRUD(t *testing.T) {
 			"id":           actual["id"],
 			"date_created": actual["date_created"],
 			"date_updated": updated["date_updated"],
-			"name":         "UPDATED stationtype0",
+			"name":         "UPDATED station0",
 			"description":  "UPDATED Test description 0",
+			"location_x":   float64(456),
+			"location_y":   float64(123),
 		}
 
 		// Updated station type should match the one we created.
 		if diff := cmp.Diff(want, updated); diff != "" {
-			t.Fatalf("Retrieved station type should match created. Diff:\n%s", diff)
+			t.Fatalf("Retrieved station should match created. Diff:\n%s", diff)
 		}
 	}
 }

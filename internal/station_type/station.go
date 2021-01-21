@@ -124,6 +124,8 @@ func RetrieveStation(ctx context.Context, db *sqlx.DB, id string) (*Station, err
 		    station_type_id,
 			name,
 			description,
+			location_x,
+			location_y,
 			date_created,
 			date_updated
 		FROM station
