@@ -3,6 +3,7 @@ package station_tests
 import (
 	// Core Packages
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -164,6 +165,72 @@ func (st *StationTests) StationCRUD(t *testing.T) {
 
 		if diff := cmp.Diff(expected, actual); diff != "" {
 			t.Fatalf("Response did not match expected. Diff:\n%s", diff)
+		}
+	}
+
+	{ // READ
+		url := fmt.Sprintf("/v1/station/%s", actual["id"])
+		req := httptest.NewRequest("GET", url, nil)
+		req.Header.Set("Content-Type", "application/json")
+		resp := httptest.NewRecorder()
+
+		st.app.ServeHTTP(resp, req)
+
+		if http.StatusOK != resp.Code {
+			t.Fatalf("retrieving: expected status code %v, got %v", http.StatusOK, resp.Code)
+		}
+
+		var fetched map[string]interface{}
+		if err := json.NewDecoder(resp.Body).Decode(&fetched); err != nil {
+			t.Fatalf("decoding: %s", err)
+		}
+
+		// Fetched station should match the one created.
+		if diff := cmp.Diff(actual, fetched); diff != "" {
+			t.Fatalf("Retrieved station type should match created. Diff:\n%s", diff)
+		}
+	}
+
+	{ // UPDATE
+		body := strings.NewReader(`{"name":"UPDATED stationtype0","description":"UPDATED Test description 0"}`)
+		url := fmt.Sprintf("/v1/station-type/%s", actual["id"])
+		req := httptest.NewRequest("PUT", url, body)
+		req.Header.Set("Content-Type", "application/json")
+		resp := httptest.NewRecorder()
+
+		st.app.ServeHTTP(resp, req)
+
+		if http.StatusNoContent != resp.Code {
+			t.Fatalf("updating: expected status code %v, got %v", http.StatusNoContent, resp.Code)
+		}
+
+		// Retrieve updated record to be sure it worked.
+		req = httptest.NewRequest("GET", url, nil)
+		req.Header.Set("Content-Type", "application/json")
+		resp = httptest.NewRecorder()
+
+		st.app.ServeHTTP(resp, req)
+
+		if http.StatusOK != resp.Code {
+			t.Fatalf("retrieving: expected status code %v, got %v", http.StatusOK, resp.Code)
+		}
+
+		var updated map[string]interface{}
+		if err := json.NewDecoder(resp.Body).Decode(&updated); err != nil {
+			t.Fatalf("decoding: %s", err)
+		}
+
+		want := map[string]interface{}{
+			"id":           actual["id"],
+			"date_created": actual["date_created"],
+			"date_updated": updated["date_updated"],
+			"name":         "UPDATED stationtype0",
+			"description":  "UPDATED Test description 0",
+		}
+
+		// Updated station type should match the one we created.
+		if diff := cmp.Diff(want, updated); diff != "" {
+			t.Fatalf("Retrieved station type should match created. Diff:\n%s", diff)
 		}
 	}
 }
