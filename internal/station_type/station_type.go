@@ -75,7 +75,7 @@ func List(ctx context.Context, db *sqlx.DB) ([]StationType, error) {
 	return station_type, nil
 }
 
-// Retrieve gets a specific StationType from the database.
+// Retrieve gets a specific StationType and all the stations of that type from the database.
 func Retrieve(ctx context.Context, db *sqlx.DB, id string) (*StationType, error) {
 	if _, err := uuid.Parse(id); err != nil {
 		return nil, ErrInvalidID
@@ -125,11 +125,13 @@ func Update(ctx context.Context, db *sqlx.DB, id string, update UpdateStationTyp
 
 	const q = `UPDATE station_type SET
 		"name" = $2,
-		"description" = $3
+		"description" = $3,
+		"date_updated" = $4
 		WHERE id = $1`
 	_, err = db.ExecContext(ctx, q, id,
 		st.Name,
 		st.Description,
+		st.DateUpdated,
 	)
 	if err != nil {
 		return errors.Wrap(err, "updating station tyoe")

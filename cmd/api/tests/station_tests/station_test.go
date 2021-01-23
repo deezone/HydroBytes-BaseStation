@@ -187,7 +187,7 @@ func (st *StationTests) StationCRUD(t *testing.T) {
 
 		// Fetched station should match the one created.
 		if diff := cmp.Diff(actual, fetched); diff != "" {
-			t.Fatalf("Retrieved station type should match created. Diff:\n%s", diff)
+			t.Fatalf("Retrieved station should match created. Diff:\n%s", diff)
 		}
 	}
 

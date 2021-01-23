@@ -59,7 +59,7 @@ func (st *StationType) List(w http.ResponseWriter, r *http.Request) error {
 	return web.Respond(w, list, http.StatusOK)
 }
 
-// Retrieve finds a single station type identified by an ID in the request URL.
+// Retrieve finds all stations of a station type identified by a station type ID in the request URL.
 func (st *StationType) Retrieve(w http.ResponseWriter, r *http.Request) error {
 	id := chi.URLParam(r, "id")
 

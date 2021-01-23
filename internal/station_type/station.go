@@ -21,8 +21,8 @@ func AddStation(ctx context.Context, db *sqlx.DB, ns NewStation, stationTypeID s
 		Description:   ns.Description,
 		LocationX:     ns.LocationX,
 		LocationY:     ns.LocationY,
-		DateCreated:   now,
-		DateUpdated:   now,
+		DateCreated:   now.UTC(),
+		DateUpdated:   now.UTC(),
 	}
 
 	const q = `INSERT INTO station
@@ -72,13 +72,15 @@ func AdjustStation(ctx context.Context, db *sqlx.DB, id string, update UpdateSta
 		"name" = $2,
 		"description" = $3,
         "location_x" = $4,
-        "location_x" = $5,
+        "location_y" = $5,
+        "date_updated" = $6
 		WHERE id = $1`
 	_, err = db.ExecContext(ctx, q, id,
 		s.Name,
 		s.Description,
 		s.LocationX,
 		s.LocationY,
+		s.DateUpdated,
 	)
 	if err != nil {
 		return errors.Wrap(err, "updating station")
