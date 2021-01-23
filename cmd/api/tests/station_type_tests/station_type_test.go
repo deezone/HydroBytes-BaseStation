@@ -215,6 +215,7 @@ func (st *StationTypeTests) StationTypeCRUD(t *testing.T) {
 			"date_updated": updated["date_updated"],
 			"name":         "UPDATED stationtype0",
 			"description":  "UPDATED Test description 0",
+			"stations":     float64(0),
 		}
 
 		// Updated station type should match the one we created.

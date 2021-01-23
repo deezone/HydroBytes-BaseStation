@@ -125,7 +125,7 @@ func Update(ctx context.Context, db *sqlx.DB, id string, update UpdateStationTyp
 
 	const q = `UPDATE station_type SET
 		"name" = $2,
-		"description" = $3,
+		"description" = $3
 		WHERE id = $1`
 	_, err = db.ExecContext(ctx, q, id,
 		st.Name,

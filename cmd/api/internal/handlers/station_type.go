@@ -85,7 +85,7 @@ func (st *StationType) Update(w http.ResponseWriter, r *http.Request) error {
 
 	var update station_type.UpdateStationType
 	if err := web.Decode(r, &update); err != nil {
-		return errors.Wrap(err, "decoding product update")
+		return errors.Wrap(err, "decoding station type update")
 	}
 
 	if err := station_type.Update(r.Context(), st.db, id, update, time.Now()); err != nil {
