@@ -3,6 +3,7 @@ package station_type_test
 import (
 	// Core packages
 	"context"
+	"github.com/google/go-cmp/cmp"
 	"testing"
 	"time"
 
@@ -40,7 +41,7 @@ func TestStation(t *testing.T) {
 		t.Fatalf("creating station type two: %s", err)
 	}
 
-	{ // Add and list
+	{ // Add, update and list
 
 		ns := station_type.NewStation{
 			Name: "",
@@ -52,6 +53,33 @@ func TestStation(t *testing.T) {
 		s, err := station_type.AddStation(ctx, db, ns, stationTypeOne.Id, now)
 		if err != nil {
 			t.Fatalf("adding test station one: %s", err)
+		}
+
+		update := station_type.UpdateStation{
+			Name: tests.StringPointer("Station 0"),
+			Description: tests.StringPointer("Station description 0"),
+		}
+		updatedTime := time.Date(2019, time.January, 1, 1, 1, 1, 0, time.UTC)
+
+		if err := station_type.AdjustStation(ctx, db, s.Id, update, updatedTime); err != nil {
+			t.Fatalf("updating station: %s", err)
+		}
+
+		saved, err := station_type.RetrieveStation(ctx, db, s.Id)
+		if err != nil {
+			t.Fatalf("getting station: %s", err)
+		}
+
+		// Check specified fields were updated. Make a copy of the original station
+		// and change just the fields we expect then diff it with what was saved.
+		want := *s
+		want.Name = "Station 0"
+		want.Description = "Station description 0"
+		want.StationTypeId = stationTypeOne.Id
+		want.DateUpdated = updatedTime
+
+		if diff := cmp.Diff(want, *saved); diff != "" {
+			t.Fatalf("updated record did not match:\n%s", diff)
 		}
 
 		// StationTypeOne should show the 1 station.

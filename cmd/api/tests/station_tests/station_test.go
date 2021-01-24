@@ -221,13 +221,14 @@ func (st *StationTests) StationCRUD(t *testing.T) {
 		}
 
 		want := map[string]interface{}{
-			"id":           actual["id"],
-			"date_created": actual["date_created"],
-			"date_updated": updated["date_updated"],
-			"name":         "UPDATED station0",
-			"description":  "UPDATED Test description 0",
-			"location_x":   float64(456),
-			"location_y":   float64(123),
+			"id":              actual["id"],
+			"date_created":    actual["date_created"],
+			"date_updated":    updated["date_updated"],
+			"name":            "UPDATED station0",
+			"description":     "UPDATED Test description 0",
+			"station_type_id": "72f8b983-3eb4-48db-9ed0-e45cc6bd716b",
+			"location_x":      float64(456),
+			"location_y":      float64(123),
 		}
 
 		// Updated station type should match the one we created.
