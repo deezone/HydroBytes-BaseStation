@@ -53,6 +53,11 @@ func Open(cfg Config) (*sqlx.DB, error) {
 // returns a non-nil error otherwise.
 func StatusCheck(ctx context.Context, db *sqlx.DB) error {
 
+	// Confirm connection to database exists, could be cached
+	if err := db.Ping();err != nil {
+		return err
+	}
+
 	// Run a simple query to determine connectivity. The db has a "Ping" method
 	// but it can false-positive when it was previously able to talk to the
 	// database but the database has since gone away. Running this query forces a
