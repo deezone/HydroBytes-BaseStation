@@ -52,7 +52,7 @@ type Station struct {
 	DateUpdated   time.Time `db:"date_updated"    json:"date_updated"`
 }
 
-// NewStation is a what we require from clients when adding a BaseStation.
+// NewStation is a what we require from clients when adding a Station.
 type NewStation struct {
 	Name          string    `db:"name"            json:"name" validate:"required"`
 	Description   string    `db:"description"     json:"description"`

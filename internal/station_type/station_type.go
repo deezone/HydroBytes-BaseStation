@@ -52,6 +52,22 @@ func Create(ctx context.Context, db *sqlx.DB, nst NewStationType, now time.Time)
 	return &st, nil
 }
 
+// Delete removes the station type identified by a given ID.
+func Delete(ctx context.Context, db *sqlx.DB, id string) error {
+	// Validate id is a valid uuid
+	if _, err := uuid.Parse(id); err != nil {
+		return ErrInvalidID
+	}
+
+	const q = `DELETE FROM station_types WHERE id = $1`
+
+	if _, err := db.ExecContext(ctx, q, id); err != nil {
+		return errors.Wrapf(err, "deleting station type %s", id)
+	}
+
+	return nil
+}
+
 // List gets all StationType from the database.
 func List(ctx context.Context, db *sqlx.DB) ([]StationType, error) {
 	station_type := []StationType{}

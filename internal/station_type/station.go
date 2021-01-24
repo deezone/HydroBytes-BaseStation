@@ -89,6 +89,22 @@ func AdjustStation(ctx context.Context, db *sqlx.DB, id string, update UpdateSta
 	return nil
 }
 
+// DeleteStation removes the station identified by a given ID.
+func DeleteStation(ctx context.Context, db *sqlx.DB, id string) error {
+	// Validate id is a valid uuid
+	if _, err := uuid.Parse(id); err != nil {
+		return ErrInvalidID
+	}
+
+	const q = `DELETE FROM station WHERE id = $1`
+
+	if _, err := db.ExecContext(ctx, q, id); err != nil {
+		return errors.Wrapf(err, "deleting station %s", id)
+	}
+
+	return nil
+}
+
 // ListStations gives all Stations for a StationType.
 func ListStations(ctx context.Context, db *sqlx.DB, stationTypeID string) ([]Station, error) {
 	stations := []Station{}
