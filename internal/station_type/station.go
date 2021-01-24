@@ -151,7 +151,7 @@ func RetrieveStation(ctx context.Context, db *sqlx.DB, id string) (*Station, err
 
 	if err := db.GetContext(ctx, &s, q, id); err != nil {
 		if err == sql.ErrNoRows {
-			return nil, ErrNotFound
+			return nil, ErrStationNotFound
 		}
 
 		return nil, errors.Wrap(err, "selecting single station")

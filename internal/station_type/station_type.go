@@ -17,6 +17,9 @@ var (
 	// ErrNotFound is used when a specific StationType is requested but does not exist.
 	ErrNotFound = errors.New("station type not found")
 
+	// ErrStationNotFound is used when a specific Station is requested but does not exist.
+	ErrStationNotFound = errors.New("station not found")
+
 	// ErrInvalidID is used when an invalid UUID is provided.
 	ErrInvalidID = errors.New("ID is not in its proper UUID format")
 )
@@ -59,7 +62,7 @@ func Delete(ctx context.Context, db *sqlx.DB, id string) error {
 		return ErrInvalidID
 	}
 
-	const q = `DELETE FROM station_types WHERE id = $1`
+	const q = `DELETE FROM station_type WHERE id = $1`
 
 	if _, err := db.ExecContext(ctx, q, id); err != nil {
 		return errors.Wrapf(err, "deleting station type %s", id)

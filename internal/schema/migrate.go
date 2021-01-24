@@ -19,13 +19,11 @@ var migrations = []darwin.Migration{
 		Description: "Add station types",
 		Script: `
 CREATE TABLE station_type (
-	id           UUID,
+	id           UUID PRIMARY KEY,
 	name         TEXT,
 	description  TEXT,
 	date_created TIMESTAMP,
-	date_updated TIMESTAMP,
-
-	PRIMARY KEY (id)
+	date_updated TIMESTAMP
 );`,
 	},
 	{
@@ -33,7 +31,7 @@ CREATE TABLE station_type (
 		Description: "Add station",
 		Script: `
 CREATE TABLE station (
-	id              UUID,
+	id              UUID PRIMARY KEY,
 	station_type_id UUID,
 	name            TEXT,
 	description     TEXT,
@@ -42,8 +40,10 @@ CREATE TABLE station (
 	date_created    TIMESTAMP,
 	date_updated    TIMESTAMP,
 
-	PRIMARY KEY (id),
-	FOREIGN KEY (station_type_id) REFERENCES station_type(id) ON DELETE CASCADE
+	CONSTRAINT fk_station_type_id
+		FOREIGN KEY (station_type_id)
+		REFERENCES station_type(id)
+		ON DELETE CASCADE
 );`,
 	},
 }

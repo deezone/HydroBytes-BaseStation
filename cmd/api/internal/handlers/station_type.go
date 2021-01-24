@@ -156,7 +156,7 @@ func (p *StationType) DeleteStation(w http.ResponseWriter, r *http.Request) erro
 	return web.Respond(w, nil, http.StatusNoContent)
 }
 
-// ListSales gets all sales for a particular product.
+// ListStations gets all sales for a particular station type.
 func (st *StationType) ListStations(w http.ResponseWriter, r *http.Request) error {
 	id := chi.URLParam(r, "id")
 
@@ -175,7 +175,7 @@ func (st *StationType) RetrieveStation(w http.ResponseWriter, r *http.Request) e
 	station, err := station_type.RetrieveStation(r.Context(), st.db, id)
 	if err != nil {
 		switch err {
-		case station_type.ErrNotFound:
+		case station_type.ErrStationNotFound:
 			return web.NewRequestError(err, http.StatusNotFound)
 		case station_type.ErrInvalidID:
 			return web.NewRequestError(err, http.StatusBadRequest)
@@ -199,7 +199,7 @@ func (st *StationType) AdjustStation(w http.ResponseWriter, r *http.Request) err
 
 	if err := station_type.AdjustStation(r.Context(), st.db, id, update, time.Now()); err != nil {
 		switch err {
-		case station_type.ErrNotFound:
+		case station_type.ErrStationNotFound:
 			return web.NewRequestError(err, http.StatusNotFound)
 		case station_type.ErrInvalidID:
 			return web.NewRequestError(err, http.StatusBadRequest)
