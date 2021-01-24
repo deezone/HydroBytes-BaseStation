@@ -53,8 +53,10 @@ courses at **[Ardan Labs](https://education.ardanlabs.com/collections?category=c
   - `GET  /v1/station-types`
   - `GET  /v1/station-type/{id}`
   - `POST /v1/station-type`
+  - `DELETE /v1/station-type/{id}`
   - `GET  /v1/station-type/{station-type-id}/stations`
   - `POST /v1/station-type/{station-type-id}/station`
+  - `DELETE /v1/station/{id}`
 
 #### Admin tools
 
