@@ -88,9 +88,10 @@ Seeding complete
 
 - **Unit Tests**
 
+**station_type** and **station**
 ```
 > go test ./internal/station_type
-ok  	github.com/deezone/HydroBytes-BaseStation/internal/station_type	6.805s
+ok  	github.com/deezone/HydroBytes-BaseStation/internal/station_type	13.515s
 ```
 
 NOTE: test coverage reports:
@@ -103,6 +104,9 @@ alais gotwc='go test -coverprofile=coverage.out && go tool cover -html=coverage.
 # bust cache
 > go clean -testcache
 
-> go test ./cmd/api/tests
-ok  	github.com/deezone/HydroBytes-BaseStation/cmd/api/tests. 6.373s
+> go test ./cmd/api/tests/station_tests
+ok  	github.com/deezone/HydroBytes-BaseStation/cmd/api/tests/station_tests	3.248s
+
+> go test ./cmd/api/tests/station_type_tests
+ok  	github.com/deezone/HydroBytes-BaseStation/cmd/api/tests/station_type_tests	2.875s
 ```

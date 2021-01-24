@@ -31,6 +31,12 @@ func TestStationType(t *testing.T) {
 		t.Fatalf("creating station type st0: %s", err)
 	}
 
+	// Invalid uuid
+	_, err = station_type.Retrieve(ctx, db, "abc123")
+	if err == nil {
+		t.Fatalf("getting invalid uuid station type abc123: %s", err)
+	}
+
 	st1, err := station_type.Retrieve(ctx, db, st0.Id)
 	if err != nil {
 		t.Fatalf("getting station type p0: %s", err)
@@ -45,6 +51,11 @@ func TestStationType(t *testing.T) {
 		Description: tests.StringPointer("Station type description 0"),
 	}
 	updatedTime := time.Date(2019, time.January, 1, 1, 1, 1, 0, time.UTC)
+
+	// Invalid uuid
+	if err := station_type.Update(ctx, db, "abc123", update, updatedTime); err == nil {
+		t.Fatalf("updating station type invalid uuid abc123: %s", err)
+	}
 
 	if err := station_type.Update(ctx, db, st0.Id, update, updatedTime); err != nil {
 		t.Fatalf("updating station type st0: %s", err)
@@ -64,6 +75,24 @@ func TestStationType(t *testing.T) {
 
 	if diff := cmp.Diff(want, *saved); diff != "" {
 		t.Fatalf("updated record did not match:\n%s", diff)
+	}
+
+	// Delete invalid Station Type, should not return error
+	err = station_type.Delete(ctx, db, "123456")
+	if err == nil {
+		t.Fatalf("delete invalid uuid station type should have not failed: %s", err)
+	}
+
+	// Delete invalid Station Type, should not return error
+	err = station_type.Delete(ctx, db, st0.Id)
+	if err != nil {
+		t.Fatalf("delete station type should have not failed: %s", err)
+	}
+
+	// Attempt to retrieve deleted station type
+	_, err = station_type.Retrieve(ctx, db, st0.Id)
+	if err == nil {
+		t.Fatalf("getting deleted station type st0: %s", err)
 	}
 }
 
