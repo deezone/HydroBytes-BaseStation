@@ -39,6 +39,22 @@ func (st *StationType) Create(w http.ResponseWriter, r *http.Request) error {
 	return web.Respond(w, &stationType, http.StatusCreated)
 }
 
+// Delete removes a single station type identified by an ID in the request URL.
+func (p *StationType) Delete(w http.ResponseWriter, r *http.Request) error {
+	id := chi.URLParam(r, "id")
+
+	if err := station_type.Delete(r.Context(), p.db, id); err != nil {
+		switch err {
+		case station_type.ErrInvalidID:
+			return web.NewRequestError(err, http.StatusBadRequest)
+		default:
+			return errors.Wrapf(err, "deleting station type %q", id)
+		}
+	}
+
+	return web.Respond(w, nil, http.StatusNoContent)
+}
+
 /**
  * List StationTypes is a basic HTTP Handler that lists all of the station types in the HydroByte Automated Garden system.
  * A Handler is also know as a "controller" in the MVC pattern.
@@ -122,6 +138,22 @@ func (st *StationType) AddStation(w http.ResponseWriter, r *http.Request) error 
 	}
 
 	return web.Respond(w, station, http.StatusCreated)
+}
+
+// Delete removes a single station identified by an ID in the request URL.
+func (p *StationType) DeleteStation(w http.ResponseWriter, r *http.Request) error {
+	id := chi.URLParam(r, "id")
+
+	if err := station_type.DeleteStation(r.Context(), p.db, id); err != nil {
+		switch err {
+		case station_type.ErrInvalidID:
+			return web.NewRequestError(err, http.StatusBadRequest)
+		default:
+			return errors.Wrapf(err, "deleting station %q", id)
+		}
+	}
+
+	return web.Respond(w, nil, http.StatusNoContent)
 }
 
 // ListSales gets all sales for a particular product.
