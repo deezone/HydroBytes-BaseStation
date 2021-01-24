@@ -17,6 +17,9 @@ var (
 	// ErrNotFound is used when a specific StationType is requested but does not exist.
 	ErrNotFound = errors.New("station type not found")
 
+	// ErrStationNotFound is used when a specific Station is requested but does not exist.
+	ErrStationNotFound = errors.New("station not found")
+
 	// ErrInvalidID is used when an invalid UUID is provided.
 	ErrInvalidID = errors.New("ID is not in its proper UUID format")
 )
@@ -52,6 +55,22 @@ func Create(ctx context.Context, db *sqlx.DB, nst NewStationType, now time.Time)
 	return &st, nil
 }
 
+// Delete removes the station type identified by a given ID.
+func Delete(ctx context.Context, db *sqlx.DB, id string) error {
+	// Validate id is a valid uuid
+	if _, err := uuid.Parse(id); err != nil {
+		return ErrInvalidID
+	}
+
+	const q = `DELETE FROM station_type WHERE id = $1`
+
+	if _, err := db.ExecContext(ctx, q, id); err != nil {
+		return errors.Wrapf(err, "deleting station type %s", id)
+	}
+
+	return nil
+}
+
 // List gets all StationType from the database.
 func List(ctx context.Context, db *sqlx.DB) ([]StationType, error) {
 	station_type := []StationType{}
@@ -75,7 +94,7 @@ func List(ctx context.Context, db *sqlx.DB) ([]StationType, error) {
 	return station_type, nil
 }
 
-// Retrieve gets a specific StationType from the database.
+// Retrieve gets a specific StationType and all the stations of that type from the database.
 func Retrieve(ctx context.Context, db *sqlx.DB, id string) (*StationType, error) {
 	if _, err := uuid.Parse(id); err != nil {
 		return nil, ErrInvalidID
@@ -105,4 +124,37 @@ func Retrieve(ctx context.Context, db *sqlx.DB, id string) (*StationType, error)
 	}
 
 	return &st, nil
+}
+
+// Update modifies data about a StationType. It will error if the specified ID is
+// invalid or does not reference an existing StationType.
+func Update(ctx context.Context, db *sqlx.DB, id string, update UpdateStationType, now time.Time) error {
+	st, err := Retrieve(ctx, db, id)
+	if err != nil {
+		return err
+	}
+
+	if update.Name != nil {
+		st.Name = *update.Name
+	}
+	if update.Description != nil {
+		st.Description = *update.Description
+	}
+	st.DateUpdated = now
+
+	const q = `UPDATE station_type SET
+		"name" = $2,
+		"description" = $3,
+		"date_updated" = $4
+		WHERE id = $1`
+	_, err = db.ExecContext(ctx, q, id,
+		st.Name,
+		st.Description,
+		st.DateUpdated,
+	)
+	if err != nil {
+		return errors.Wrap(err, "updating station tyoe")
+	}
+
+	return nil
 }

@@ -16,8 +16,7 @@
 							"var jsonData = JSON.parse(responseBody);",
 							"postman.setEnvironmentVariable(\"Token\", jsonData.token);",
 							""
-						],
-						"id": "c45fe2f3-fdd9-435a-92a4-7fedf284323b"
+						]
 					}
 				}
 			],
@@ -91,7 +90,7 @@
 			"response": []
 		},
 		{
-			"name": "Get Station Types",
+			"name": "Get Station Type",
 			"request": {
 				"auth": {
 					"type": "bearer",
@@ -106,14 +105,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{SERVER}}/v1/station-type/fc935253-83af-47e7-a7c8-9f9ee182b34e",
+					"raw": "{{SERVER}}/v1/station-type/a2b0639f-2cc6-44b8-b97b-15d69dbb511e",
 					"host": [
 						"{{SERVER}}"
 					],
 					"path": [
 						"v1",
 						"station-type",
-						"fc935253-83af-47e7-a7c8-9f9ee182b34e"
+						"a2b0639f-2cc6-44b8-b97b-15d69dbb511e"
 					]
 				}
 			},
@@ -141,7 +140,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"name\": \"Test name3\",\n    \"description\": \"Test description3\"\n}",
+					"raw": "{\n    \"name\": \"Test Station Tyoe\",\n    \"description\": \"Test station tyoe description\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -183,7 +182,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"name\": \"New Test Station\"\n}"
+					"raw": "{\n\t\"name\": \"New New Test Station Type\"\n}"
 				},
 				"url": {
 					"raw": "{{SERVER}}/v1/station-type/a2b0639f-2cc6-44b8-b97b-15d69dbb511e",
@@ -200,7 +199,7 @@
 			"response": []
 		},
 		{
-			"name": "Delete WaterStation Station Type",
+			"name": "Delete Station Type",
 			"request": {
 				"auth": {
 					"type": "bearer",
@@ -244,15 +243,44 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{SERVER}}/v1/station-type/a2b0639f-2cc6-44b8-b97b-15d69dbb511e/stations",
+					"raw": "{{SERVER}}/v1/station-type/5c86bbaa-4ef8-11eb-ae93-0242ac130002/stations",
 					"host": [
 						"{{SERVER}}"
 					],
 					"path": [
 						"v1",
 						"station-type",
-						"a2b0639f-2cc6-44b8-b97b-15d69dbb511e",
+						"5c86bbaa-4ef8-11eb-ae93-0242ac130002",
 						"stations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Station",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{Token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{SERVER}}/v1/station/f676f266-590c-11eb-ae93-0242ac130002",
+					"host": [
+						"{{SERVER}}"
+					],
+					"path": [
+						"v1",
+						"station",
+						"f676f266-590c-11eb-ae93-0242ac130002"
 					]
 				}
 			},
@@ -280,18 +308,85 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"quantity\": 2,\n\t\"paid\": 40\n}"
+					"raw": "{\n\t\"name\": \"Test Station\",\n\t\"description\": \"Test station decription\",\n    \"location_x\": 9,\n    \"location_y\": 9\n}"
 				},
 				"url": {
-					"raw": "{{SERVER}}/v1/stations-type/a2b0639f-2cc6-44b8-b97b-15d69dbb511e/station",
+					"raw": "{{SERVER}}/v1/station-type/39fc9b9b-4584-4c01-9911-8b010b5d72b8/station",
 					"host": [
 						"{{SERVER}}"
 					],
 					"path": [
 						"v1",
-						"stations-type",
-						"a2b0639f-2cc6-44b8-b97b-15d69dbb511e",
+						"station-type",
+						"39fc9b9b-4584-4c01-9911-8b010b5d72b8",
 						"station"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Station",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{Token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"New New Test Station\"\n}"
+				},
+				"url": {
+					"raw": "{{SERVER}}/v1/station/f676f266-590c-11eb-ae93-0242ac130002",
+					"host": [
+						"{{SERVER}}"
+					],
+					"path": [
+						"v1",
+						"station",
+						"f676f266-590c-11eb-ae93-0242ac130002"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Station",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{Token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{SERVER}}/v1/station/72f8b983-3eb4-48db-9ed0-e45cc6bd716b",
+					"host": [
+						"{{SERVER}}"
+					],
+					"path": [
+						"v1",
+						"station",
+						"72f8b983-3eb4-48db-9ed0-e45cc6bd716b"
 					]
 				}
 			},
@@ -320,7 +415,6 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "9eba4917-9948-4209-9e33-c39e376d1bb5",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -330,13 +424,11 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "cef76e2b-f3c0-463a-a11c-593fcba7dab5",
 				"type": "text/javascript",
 				"exec": [
 					""
 				]
 			}
 		}
-	],
-	"protocolProfileBehavior": {}
+	]
 }

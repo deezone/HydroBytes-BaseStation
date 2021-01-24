@@ -29,6 +29,17 @@ type NewStationType struct {
 	Description string    `json:"description"`
 }
 
+// UpdateStationType defines what information may be provided to modify an
+// existing StationType. All fields are optional so clients can send just the
+// fields they want changed. It uses pointer fields so we can differentiate
+// between a field that were not provided and a field that was provided as
+// explicitly blank. Normally we do not want to use pointers to basic types but
+// we make exceptions around marshalling/unmarshalling.
+type UpdateStationType struct {
+	Name         *string `json:"name"`
+	Description  *string `json:"description"`
+}
+
 // Station is a station that is defined as one of the station types in StationType.
 type Station struct {
 	Id            string    `db:"id"              json:"id"`
@@ -41,10 +52,23 @@ type Station struct {
 	DateUpdated   time.Time `db:"date_updated"    json:"date_updated"`
 }
 
-// NewStation is a what we require from clients when adding a BaseStation.
+// NewStation is a what we require from clients when adding a Station.
 type NewStation struct {
 	Name          string    `db:"name"            json:"name" validate:"required"`
 	Description   string    `db:"description"     json:"description"`
 	LocationX     int       `db:"location_x"      json:"location_x" validate:"required,gte=0"`
 	LocationY     int       `db:"location_y"      json:"location_y" validate:"required,gte=0"`
+}
+
+// UpdateStation defines what information may be provided to modify an
+// existing Station. All fields are optional so clients can send just the
+// fields they want changed. It uses pointer fields so we can differentiate
+// between a field that were not provided and a field that was provided as
+// explicitly blank. Normally we do not want to use pointers to basic types but
+// we make exceptions around marshalling/unmarshalling.
+type UpdateStation struct {
+	Name         *string `json:"name"`
+	Description  *string `json:"description"`
+	LocationX    *int    `json:"location_x" validate:"omitempty,gte=0"`
+	LocationY    *int    `json:"location_y" validate:"omitempty,gte=0"`
 }

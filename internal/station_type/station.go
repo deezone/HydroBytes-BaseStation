@@ -3,6 +3,7 @@ package station_type
 import (
 	// Core packages
 	"context"
+	"database/sql"
 	"time"
 
 	// Third-party packages
@@ -20,8 +21,8 @@ func AddStation(ctx context.Context, db *sqlx.DB, ns NewStation, stationTypeID s
 		Description:   ns.Description,
 		LocationX:     ns.LocationX,
 		LocationY:     ns.LocationY,
-		DateCreated:   now,
-		DateUpdated:   now,
+		DateCreated:   now.UTC(),
+		DateUpdated:   now.UTC(),
 	}
 
 	const q = `INSERT INTO station
@@ -45,6 +46,65 @@ func AddStation(ctx context.Context, db *sqlx.DB, ns NewStation, stationTypeID s
 	return &s, nil
 }
 
+// AdjustStation modifies data about a Station. It will error if the specified ID is
+// invalid or does not reference an existing Station.
+func AdjustStation(ctx context.Context, db *sqlx.DB, id string, update UpdateStation, now time.Time) error {
+	s, err := RetrieveStation(ctx, db, id)
+	if err != nil {
+		return err
+	}
+
+	if update.Name != nil {
+		s.Name = *update.Name
+	}
+	if update.Description != nil {
+		s.Description = *update.Description
+	}
+	if update.LocationX != nil {
+		s.LocationX = *update.LocationX
+	}
+	if update.LocationY != nil {
+		s.LocationY = *update.LocationY
+	}
+	s.DateUpdated = now
+
+	const q = `UPDATE station SET
+		"name" = $2,
+		"description" = $3,
+        "location_x" = $4,
+        "location_y" = $5,
+        "date_updated" = $6
+		WHERE id = $1`
+	_, err = db.ExecContext(ctx, q, id,
+		s.Name,
+		s.Description,
+		s.LocationX,
+		s.LocationY,
+		s.DateUpdated,
+	)
+	if err != nil {
+		return errors.Wrap(err, "updating station")
+	}
+
+	return nil
+}
+
+// DeleteStation removes the station identified by a given ID.
+func DeleteStation(ctx context.Context, db *sqlx.DB, id string) error {
+	// Validate id is a valid uuid
+	if _, err := uuid.Parse(id); err != nil {
+		return ErrInvalidID
+	}
+
+	const q = `DELETE FROM station WHERE id = $1`
+
+	if _, err := db.ExecContext(ctx, q, id); err != nil {
+		return errors.Wrapf(err, "deleting station %s", id)
+	}
+
+	return nil
+}
+
 // ListStations gives all Stations for a StationType.
 func ListStations(ctx context.Context, db *sqlx.DB, stationTypeID string) ([]Station, error) {
 	stations := []Station{}
@@ -66,4 +126,36 @@ func ListStations(ctx context.Context, db *sqlx.DB, stationTypeID string) ([]Sta
 	}
 
 	return stations, nil
+}
+
+// Retrieve gets a specific Station from the database.
+func RetrieveStation(ctx context.Context, db *sqlx.DB, id string) (*Station, error) {
+	if _, err := uuid.Parse(id); err != nil {
+		return nil, ErrInvalidID
+	}
+
+	var s Station
+
+	const q = `
+		SELECT
+			id,
+		    station_type_id,
+			name,
+			description,
+			location_x,
+			location_y,
+			date_created,
+			date_updated
+		FROM station
+		WHERE id = $1`
+
+	if err := db.GetContext(ctx, &s, q, id); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, ErrStationNotFound
+		}
+
+		return nil, errors.Wrap(err, "selecting single station")
+	}
+
+	return &s, nil
 }
