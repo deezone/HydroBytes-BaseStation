@@ -58,27 +58,43 @@ func TestStation(t *testing.T) {
 		update := station_type.UpdateStation{
 			Name: tests.StringPointer("Station 0"),
 			Description: tests.StringPointer("Station description 0"),
+			LocationX: tests.IntPointer(25),
+			LocationY: tests.IntPointer(45),
 		}
 		updatedTime := time.Date(2019, time.January, 1, 1, 1, 1, 0, time.UTC)
+
+		// Invalid uuid
+		if err := station_type.AdjustStation(ctx, db, "123abc", update, updatedTime); err == nil {
+			t.Fatalf("updating invalid station: %s", err)
+		}
 
 		if err := station_type.AdjustStation(ctx, db, s.Id, update, updatedTime); err != nil {
 			t.Fatalf("updating station: %s", err)
 		}
 
-		saved, err := station_type.RetrieveStation(ctx, db, s.Id)
+		// Invalid uuid
+		_, err = station_type.RetrieveStation(ctx, db, "123abc")
+		if err == nil {
+			t.Fatalf("getting invalid station: %s", err)
+		}
+
+
+		actual, err := station_type.RetrieveStation(ctx, db, s.Id)
 		if err != nil {
 			t.Fatalf("getting station: %s", err)
 		}
 
 		// Check specified fields were updated. Make a copy of the original station
 		// and change just the fields we expect then diff it with what was saved.
-		want := *s
-		want.Name = "Station 0"
-		want.Description = "Station description 0"
-		want.StationTypeId = stationTypeOne.Id
-		want.DateUpdated = updatedTime
+		expected := *s
+		expected.Name = "Station 0"
+		expected.Description = "Station description 0"
+		expected.LocationX = 25
+		expected.LocationY = 45
+		expected.StationTypeId = stationTypeOne.Id
+		expected.DateUpdated = updatedTime
 
-		if diff := cmp.Diff(want, *saved); diff != "" {
+		if diff := cmp.Diff(expected, *actual); diff != "" {
 			t.Fatalf("updated record did not match:\n%s", diff)
 		}
 
@@ -97,6 +113,27 @@ func TestStation(t *testing.T) {
 
 		// StationTypeTwo should have 0 stations.
 		stations, err = station_type.ListStations(ctx, db, stationTypeTwo.Id)
+		if err != nil {
+			t.Fatalf("listing stations: %s", err)
+		}
+		if exp, got := 0, len(stations); exp != got {
+			t.Fatalf("expected station list size %v, got %v", exp, got)
+		}
+
+		// Delete invalid Station, should not return error
+		err = station_type.DeleteStation(ctx, db, "123456")
+		if err == nil {
+			t.Fatalf("delete station should have failed: %s", err)
+		}
+
+		// Delete Station 0
+		err = station_type.DeleteStation(ctx, db, s.Id)
+		if err != nil {
+			t.Fatalf("delete station: %s", err)
+		}
+
+		// StationTypeOne should show the 0 stations.
+		stations, err = station_type.ListStations(ctx, db, stationTypeOne.Id)
 		if err != nil {
 			t.Fatalf("listing stations: %s", err)
 		}
