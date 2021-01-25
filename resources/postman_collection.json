@@ -409,6 +409,25 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Profiling",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{SERVER-PROFILE}}/debug/pprof/",
+					"host": [
+						"{{SERVER-PROFILE}}"
+					],
+					"path": [
+						"debug",
+						"pprof",
+						""
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"event": [
