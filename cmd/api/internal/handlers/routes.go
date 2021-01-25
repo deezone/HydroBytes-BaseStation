@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	// Internal packages
+	"github.com/deezone/HydroBytes-BaseStation/internal/mid"
 	"github.com/deezone/HydroBytes-BaseStation/internal/platform/web"
 
 	// Third-party packages
@@ -15,7 +16,8 @@ import (
 // API constructs an http.Handler with all application routes defined.
 func API(db *sqlx.DB, log *log.Logger) http.Handler {
 
-	app := web.NewApp(log)
+	// Construct the web.App which holds all routes as well as common Middleware.
+	app := web.NewApp(log, mid.Errors(log))
 
 	{
 		c := Check{db: db}
