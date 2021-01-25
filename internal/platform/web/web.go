@@ -17,13 +17,15 @@ type Handler func(http.ResponseWriter, *http.Request) error
 type App struct {
 	log *log.Logger
 	mux *chi.Mux
+	mw  []Middleware
 }
 
 // NewApp constructs an App to handle a set of routes.
-func NewApp(log *log.Logger) *App {
+func NewApp(log *log.Logger, mw ...Middleware) *App {
 	return &App{
 		log: log,
 		mux: chi.NewRouter(),
+		mw:  mw,
 	}
 }
 
@@ -33,21 +35,16 @@ func NewApp(log *log.Logger) *App {
 // errors from the handler and serves them to the client in a uniform way.
 func (a *App) Handle(method, url string, h Handler) {
 
+	// wrap the application's middleware around this endpoint's handler.
+	h = wrapMiddleware(a.mw, h)
+
+	// Create a function that conforms to the std lib definition of a handler.
+	// This is the first thing that will be executed when this route is called.
 	fn := func(w http.ResponseWriter, r *http.Request) {
 
-		// Call the handler and catch any propagated error.
-		err := h(w, r)
-
-		if err != nil {
-
-			// Log the error.
-			a.log.Printf("ERROR : %+v", err)
-			// a.log.Println("ERROR : Validation error")
-
-			// Respond to the error.
-			if err := RespondError(w, err); err != nil {
-				a.log.Printf("ERROR : %v", err)
-			}
+		// Run the handler chain and catch any propagated error.
+		if err := h(w, r); err != nil {
+			a.log.Printf("Unhandled error: %+v", err)
 		}
 	}
 
