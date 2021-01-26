@@ -17,7 +17,7 @@ import (
 func API(db *sqlx.DB, log *log.Logger) http.Handler {
 
 	// Construct the web.App which holds all routes as well as common Middleware.
-	app := web.NewApp(log, mid.Errors(log))
+	app := web.NewApp(log, mid.Errors(log), mid.Metrics())
 
 	{
 		c := Check{db: db}
