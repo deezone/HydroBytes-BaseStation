@@ -1,18 +1,32 @@
 package web
 
 import (
-	// Code packages
+	// Core packages
+	"context"
 	"log"
 	"net/http"
+	"time"
 
 	// Third-party packages
 	"github.com/go-chi/chi"
 )
 
+// ctxKey represents the type of value for the context key.
+type ctxKey int
+
+// KeyValues is how request values or stored/retrieved.
+const KeyValues ctxKey = 1
+
+// Values carries information about each request.
+type Values struct {
+	StatusCode int
+	Start      time.Time
+}
+
 // Handler is the signature used by all application handlers in this service.
 type Handler func(http.ResponseWriter, *http.Request) error
 
-// App is the entry point into our application and what controls the context of
+// App is the entrypoint into our application and what controls the context of
 // each request. Feel free to add any configuration data/logic on this type.
 type App struct {
 	log *log.Logger
@@ -20,7 +34,8 @@ type App struct {
 	mw  []Middleware
 }
 
-// NewApp constructs an App to handle a set of routes.
+// NewApp constructs an App to handle a set of routes. Any Middleware provided
+// will be ran for every request.
 func NewApp(log *log.Logger, mw ...Middleware) *App {
 	return &App{
 		log: log,
@@ -41,6 +56,14 @@ func (a *App) Handle(method, url string, h Handler) {
 	// Create a function that conforms to the std lib definition of a handler.
 	// This is the first thing that will be executed when this route is called.
 	fn := func(w http.ResponseWriter, r *http.Request) {
+
+		// Create a Values struct to record state for the request. Store the
+		// address in the request's context so it is sent down the call chain.
+		v := Values{
+			Start: time.Now(),
+		}
+		ctx := context.WithValue(r.Context(), KeyValues, &v)
+		r = r.WithContext(ctx)
 
 		// Run the handler chain and catch any propagated error.
 		if err := h(w, r); err != nil {
