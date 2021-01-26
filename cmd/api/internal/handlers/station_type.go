@@ -36,7 +36,7 @@ func (st *StationType) Create(w http.ResponseWriter, r *http.Request) error {
 		return errors.Wrap(err, "creating new station type")
 	}
 
-	return web.Respond(w, &stationType, http.StatusCreated)
+	return web.Respond(r.Context(), w, &stationType, http.StatusCreated)
 }
 
 // Delete removes a single station type identified by an ID in the request URL.
@@ -52,7 +52,7 @@ func (p *StationType) Delete(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	return web.Respond(w, nil, http.StatusNoContent)
+	return web.Respond(r.Context(), w, nil, http.StatusNoContent)
 }
 
 /**
@@ -72,7 +72,7 @@ func (st *StationType) List(w http.ResponseWriter, r *http.Request) error {
 		return errors.Wrap(err, "getting station type list")
 	}
 
-	return web.Respond(w, list, http.StatusOK)
+	return web.Respond(r.Context(), w, list, http.StatusOK)
 }
 
 // Retrieve finds all stations of a station type identified by a station type ID in the request URL.
@@ -91,7 +91,7 @@ func (st *StationType) Retrieve(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	return web.Respond(w, stationTypes, http.StatusOK)
+	return web.Respond(r.Context(), w, stationTypes, http.StatusOK)
 }
 
 // Update decodes the body of a request to update an existing station type. The ID
@@ -115,7 +115,7 @@ func (st *StationType) Update(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	return web.Respond(w, nil, http.StatusNoContent)
+	return web.Respond(r.Context(), w, nil, http.StatusNoContent)
 }
 
 /**
@@ -137,7 +137,7 @@ func (st *StationType) AddStation(w http.ResponseWriter, r *http.Request) error 
 		return errors.Wrap(err, "adding new sale")
 	}
 
-	return web.Respond(w, station, http.StatusCreated)
+	return web.Respond(r.Context(), w, station, http.StatusCreated)
 }
 
 // Delete removes a single station identified by an ID in the request URL.
@@ -153,7 +153,7 @@ func (p *StationType) DeleteStation(w http.ResponseWriter, r *http.Request) erro
 		}
 	}
 
-	return web.Respond(w, nil, http.StatusNoContent)
+	return web.Respond(r.Context(), w, nil, http.StatusNoContent)
 }
 
 // ListStations gets all sales for a particular station type.
@@ -165,7 +165,7 @@ func (st *StationType) ListStations(w http.ResponseWriter, r *http.Request) erro
 		return errors.Wrap(err, "getting sales list")
 	}
 
-	return web.Respond(w, list, http.StatusOK)
+	return web.Respond(r.Context(), w, list, http.StatusOK)
 }
 
 // Retrieve finds a single station identified by an ID in the request URL.
@@ -184,7 +184,7 @@ func (st *StationType) RetrieveStation(w http.ResponseWriter, r *http.Request) e
 		}
 	}
 
-	return web.Respond(w, station, http.StatusOK)
+	return web.Respond(r.Context(), w, station, http.StatusOK)
 }
 
 // Update decodes the body of a request to update an existing station. The ID
@@ -208,5 +208,5 @@ func (st *StationType) AdjustStation(w http.ResponseWriter, r *http.Request) err
 		}
 	}
 
-	return web.Respond(w, nil, http.StatusNoContent)
+	return web.Respond(r.Context(), w, nil, http.StatusNoContent)
 }
