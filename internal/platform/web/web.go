@@ -24,7 +24,7 @@ type Values struct {
 }
 
 // Handler is the signature used by all application handlers in this service.
-type Handler func(http.ResponseWriter, *http.Request) error
+type Handler func(context.Context, http.ResponseWriter, *http.Request) error
 
 // App is the entrypoint into our application and what controls the context of
 // each request. Feel free to add any configuration data/logic on this type.
@@ -63,10 +63,9 @@ func (a *App) Handle(method, url string, h Handler) {
 			Start: time.Now(),
 		}
 		ctx := context.WithValue(r.Context(), KeyValues, &v)
-		r = r.WithContext(ctx)
 
 		// Run the handler chain and catch any propagated error.
-		if err := h(w, r); err != nil {
+		if err := h(ctx, w, r); err != nil {
 			a.log.Printf("Unhandled error: %+v", err)
 		}
 	}
