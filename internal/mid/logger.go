@@ -27,9 +27,11 @@ func Logger(log *log.Logger) web.Middleware {
 
 			err := before(w, r)
 
-			log.Printf("(%d) : %s %s -> %s (%s)",
-				v.StatusCode,
-				r.Method, r.URL.Path,
+			// Format log message
+			// ex: POST (201) : /v1/station-type -> 127.0.0.1:53670 (6.408225ms)
+			log.Printf("%s (%d) : %s -> %s (%s)",
+				r.Method, v.StatusCode,
+				r.URL.Path,
 				r.RemoteAddr, time.Since(v.Start),
 			)
 
