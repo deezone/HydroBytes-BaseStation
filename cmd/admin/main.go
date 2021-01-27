@@ -82,7 +82,8 @@ func run() error {
 	case "seed":
 		err = seed(dbConfig)
 	case "accountadd":
-		err = accountadd(dbConfig, cfg.Args.Num(1), cfg.Args.Num(2))
+		// name, password
+		err = adminAdd(dbConfig, cfg.Args.Num(1), cfg.Args.Num(2))
 	default:
 		err = errors.New("Must specify a command")
 	}
@@ -124,7 +125,7 @@ func seed(cfg database.Config) error {
 	return nil
 }
 
-func accountadd(cfg database.Config, email, password string) error {
+func adminAdd(cfg database.Config, name, password string) error {
 	db, err := database.Open(cfg)
 	if err != nil {
 		return err
@@ -132,10 +133,10 @@ func accountadd(cfg database.Config, email, password string) error {
 	defer db.Close()
 
 	if password == "" {
-		return errors.New("accountadd command must be called with additional argument password")
+		return errors.New("adminAdd command must be called with additional argument password")
 	}
 
-	fmt.Printf("Account will be created with password %q\n", password)
+	fmt.Printf("Admin account will be created with password %q\n", password)
 	fmt.Print("Continue? (1/0) ")
 
 	var confirm bool
@@ -151,9 +152,10 @@ func accountadd(cfg database.Config, email, password string) error {
 	ctx := context.Background()
 
 	na := account.NewAccount{
+		Name:            name,
 		Password:        password,
 		PasswordConfirm: password,
-		Roles:           []string{auth.RoleAdmin, auth.RoleAccount},
+		Roles:           []string{auth.RoleAdmin, auth.RoleStation},
 	}
 
 	a, err := account.Create(ctx, db, na, time.Now())
