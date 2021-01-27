@@ -45,7 +45,7 @@ func run() error {
 
 	// Use "shadowing" to override the global log package value. See https://golang.org/src/log/log.go#L37 for possible
 	// bit values to manage output
-	log := log.New(os.Stdout, "STATIONS : ", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
+	log := log.New(os.Stdout, "STATIONS API : ", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
 
 	// =========================================================================
 	// Configuration

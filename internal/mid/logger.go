@@ -1,6 +1,7 @@
 package mid
 
 import (
+	"context"
 	// Core packages
 	"errors"
 	"log"
@@ -19,13 +20,13 @@ func Logger(log *log.Logger) web.Middleware {
 	f := func(before web.Handler) web.Handler {
 
 		// Create the handler that will be attached in the middleware chain.
-		h := func(w http.ResponseWriter, r *http.Request) error {
-			v, ok := r.Context().Value(web.KeyValues).(*web.Values)
+		h := func(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+			v, ok := ctx.Value(web.KeyValues).(*web.Values)
 			if !ok {
 				return errors.New("web value missing from context")
 			}
 
-			err := before(w, r)
+			err := before(ctx, w, r)
 
 			// Format log message
 			// ex: POST (201) : /v1/station-type -> 127.0.0.1:53670 (6.408225ms)

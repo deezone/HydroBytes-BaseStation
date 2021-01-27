@@ -1,7 +1,8 @@
 package mid
 
 import (
-	// COre packages
+	// Core packages
+	"context"
 	"expvar"
 	"net/http"
 	"runtime"
@@ -28,9 +29,9 @@ func Metrics() web.Middleware {
 	f := func(before web.Handler) web.Handler {
 
 		// Wrap this handler around the next one provided.
-		h := func(w http.ResponseWriter, r *http.Request) error {
+		h := func(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 
-			err := before(w, r)
+			err := before(ctx, w, r)
 
 			// Increment the request counter.
 			m.req.Add(1)
