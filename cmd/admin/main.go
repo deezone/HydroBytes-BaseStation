@@ -2,6 +2,11 @@
 package main
 
 import (
+	"context"
+	"github.com/deezone/HydroBytes-BaseStation/internal/account"
+	"github.com/deezone/HydroBytes-BaseStation/internal/platform/auth"
+	"time"
+
 	// Core Packages
 	"fmt"
 	"log" // https://golang.org/pkg/log/
@@ -56,39 +61,106 @@ func run() error {
 	}
 
 	// =========================================================================
-	// Database connection
+	// Database configuration
 
 	// Initialize dependencies.
-	db, err := database.Open(database.Config{
+	dbConfig := database.Config{
 		User:       cfg.DB.User,
 		Password:   cfg.DB.Password,
 		Host:       cfg.DB.Host,
 		Name:       cfg.DB.Name,
 		DisableTLS: cfg.DB.DisableTLS,
-	})
-	if err != nil {
-		return errors.Wrap(err, "connecting to db")
 	}
-	defer db.Close()
 
 	// =========================================================================
 	// Supported admin commands
 
+	var err error
 	switch cfg.Args.Num(0) {
 	case "migrate":
-		if err := schema.Migrate(db); err != nil {
-			return errors.Wrap(err, "applying migrations")
-			os.Exit(1)
-		}
-		fmt.Println("Migrations complete")
-
+		err = migrate(dbConfig)
 	case "seed":
-		if err := schema.Seed(db); err != nil {
-			return errors.Wrap(err, "seeding database")
-			os.Exit(1)
-		}
-		fmt.Println("Seed data complete")
+		err = seed(dbConfig)
+	case "accountadd":
+		err = accountadd(dbConfig, cfg.Args.Num(1), cfg.Args.Num(2))
+	default:
+		err = errors.New("Must specify a command")
 	}
 
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func migrate(cfg database.Config) error {
+	db, err := database.Open(cfg)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	if err := schema.Migrate(db); err != nil {
+		return err
+	}
+
+	fmt.Println("Migrations complete")
+	return nil
+}
+
+func seed(cfg database.Config) error {
+	db, err := database.Open(cfg)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	if err := schema.Seed(db); err != nil {
+		return err
+	}
+
+	fmt.Println("Seed data complete")
+	return nil
+}
+
+func accountadd(cfg database.Config, email, password string) error {
+	db, err := database.Open(cfg)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	if password == "" {
+		return errors.New("accountadd command must be called with additional argument password")
+	}
+
+	fmt.Printf("Account will be created with password %q\n", password)
+	fmt.Print("Continue? (1/0) ")
+
+	var confirm bool
+	if _, err := fmt.Scanf("%t\n", &confirm); err != nil {
+		return errors.Wrap(err, "processing response")
+	}
+
+	if !confirm {
+		fmt.Println("Canceling")
+		return nil
+	}
+
+	ctx := context.Background()
+
+	na := account.NewAccount{
+		Password:        password,
+		PasswordConfirm: password,
+		Roles:           []string{auth.RoleAdmin, auth.RoleAccount},
+	}
+
+	a, err := account.Create(ctx, db, na, time.Now())
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Account created with id:", a.Id)
 	return nil
 }
