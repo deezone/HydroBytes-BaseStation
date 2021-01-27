@@ -46,6 +46,20 @@ CREATE TABLE station (
 		ON DELETE CASCADE
 );`,
 	},
+	{
+		Version:     3,
+		Description: "Add accounts",
+		Script: `
+CREATE TABLE account (
+	id       UUID,
+	name          TEXT,
+	roles         TEXT[],
+	password_hash TEXT,
+	date_created TIMESTAMP,
+	date_updated TIMESTAMP,
+	PRIMARY KEY (id)
+);`,
+	},
 }
 
 // Migrate attempts to bring the schema for db up to date with the migrations

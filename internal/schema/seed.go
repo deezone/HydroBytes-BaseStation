@@ -34,6 +34,12 @@ INSERT INTO station (id, station_type_id, name, description, location_x, locatio
     ('feaa0806-590c-11eb-ae93-0242ac130002', '5c86bbaa-4ef8-11eb-ae93-0242ac130002', 'Plant Station Two', 'Some description of Plant Station Two', 4, 3, '2021-01-01 00:00:04.000001+00', '2021-01-01 00:00:04.000001+00'),
     ('0690d086-590d-11eb-ae93-0242ac130002', '5c86bbaa-4ef8-11eb-ae93-0242ac130002', 'Plant Station Three', 'Some description of Plant Station Three', 5, 3, '2021-01-01 00:00:05.000001+00', '2021-01-01 00:00:05.000001+00')
 	ON CONFLICT DO NOTHING;
+
+-- Create admin and regular Account with password "gophers"
+INSERT INTO account (id, name, roles, password_hash, date_created, date_updated) VALUES
+	('5cf37266-3473-4006-984f-9325122678b7', 'Admin', '{ADMIN,USER}', '$2a$10$1ggfMVZV6Js0ybvJufLRUOWHS5f6KneuP0XwwHpJ8L8ipdry9f2/a', '2021-01-01 00:00:00', '2021-01-01 00:00:00'),
+	('45b5fbd3-755f-4379-8f07-a58d4a30fa2f', 'Station', '{USER}', '$2a$10$9/XASPKBbJKVfCAZKDH.UuhsuALDr5vVm6VrYA9VFR8rccK86C1hW', '2021-01-01 00:00:00', '2019-01-01 00:00:00')
+	ON CONFLICT DO NOTHING;
 `
 
 // Seed runs the set of seed-data queries against db. The queries are ran in a
