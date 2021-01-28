@@ -31,7 +31,7 @@ func Create(ctx context.Context, db *sqlx.DB, n NewAccount, now time.Time) (*Acc
 
 	const q = `INSERT INTO account
 		(id, name, password_hash, roles, date_created, date_updated)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)`
+		VALUES ($1, $2, $3, $4, $5, $6)`
 	_, err = db.ExecContext(
 		ctx, q,
 		a.Id, a.Name,

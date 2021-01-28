@@ -81,7 +81,7 @@ func run() error {
 		err = migrate(dbConfig)
 	case "seed":
 		err = seed(dbConfig)
-	case "accountadd":
+	case "accountAdd":
 		// name, password
 		err = adminAdd(dbConfig, cfg.Args.Num(1), cfg.Args.Num(2))
 	default:

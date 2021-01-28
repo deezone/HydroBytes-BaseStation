@@ -52,7 +52,7 @@ CREATE TABLE station (
 		Script: `
 CREATE TABLE account (
 	id       UUID,
-	name          TEXT,
+	name          TEXT UNIQUE,
 	roles         TEXT[],
 	password_hash TEXT,
 	date_created TIMESTAMP,
