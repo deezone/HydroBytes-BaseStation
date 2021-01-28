@@ -4,10 +4,8 @@ import (
 	// Core Packages
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strings"
 	"testing"
 
@@ -15,7 +13,6 @@ import (
 	// make the comparison process easier using the go-cmp library.
 	// Internal packages
 	"github.com/deezone/HydroBytes-BaseStation/cmd/api/internal/handlers"
-	"github.com/deezone/HydroBytes-BaseStation/internal/schema"
 	"github.com/deezone/HydroBytes-BaseStation/internal/tests"
 
 	// Third-party packages
@@ -29,20 +26,14 @@ import (
 // subtest needs a fresh instance of the application it can make it or it
 // should be its own Test* function.
 func TestStationType(t *testing.T) {
-	db, teardown := tests.NewUnit(t)
-	defer teardown()
+	test := tests.New(t)
+	defer test.Teardown()
 
-	if err := schema.Seed(db); err != nil {
-		t.Fatal(err)
-	}
+	stationTypeTests := StationTypeTests{app: handlers.API(test.Db, test.Log, test.Authenticator)}
 
-	log := log.New(os.Stderr, "TEST : ", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
-
-	tests := StationTypeTests{app: handlers.API(db, log)}
-
-	t.Run("List", tests.List)
-	t.Run("CreateRequiresFields", tests.CreateRequiresFields)
-	t.Run("StationTypeCRUD", tests.StationTypeCRUD)
+	t.Run("List", stationTypeTests.List)
+	t.Run("CreateRequiresFields", stationTypeTests.CreateRequiresFields)
+	t.Run("StationTypeCRUD", stationTypeTests.StationTypeCRUD)
 }
 
 // StationTypesTests holds methods for each station types subtest. This type allows
@@ -221,6 +212,29 @@ func (st *StationTypeTests) StationTypeCRUD(t *testing.T) {
 		// Updated station type should match the one we created.
 		if diff := cmp.Diff(want, updated); diff != "" {
 			t.Fatalf("Retrieved station type should match created. Diff:\n%s", diff)
+		}
+	}
+
+	{ // DELETE
+		url := fmt.Sprintf("/v1/station-type/%s", actual["id"])
+		req := httptest.NewRequest("DELETE", url, nil)
+		resp := httptest.NewRecorder()
+
+		st.app.ServeHTTP(resp, req)
+
+		if http.StatusNoContent != resp.Code {
+			t.Fatalf("updating: expected status code %v, got %v", http.StatusNoContent, resp.Code)
+		}
+
+		// Retrieve updated record to be sure it worked.
+		req = httptest.NewRequest("GET", url, nil)
+		req.Header.Set("Content-Type", "application/json")
+		resp = httptest.NewRecorder()
+
+		st.app.ServeHTTP(resp, req)
+
+		if http.StatusNotFound != resp.Code {
+			t.Fatalf("retrieving: expected status code %v, got %v", http.StatusNotFound, resp.Code)
 		}
 	}
 }
