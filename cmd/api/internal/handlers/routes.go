@@ -7,6 +7,7 @@ import (
 
 	// Internal packages
 	"github.com/deezone/HydroBytes-BaseStation/internal/mid"
+	"github.com/deezone/HydroBytes-BaseStation/internal/platform/auth"
 	"github.com/deezone/HydroBytes-BaseStation/internal/platform/web"
 
 	// Third-party packages
@@ -14,7 +15,7 @@ import (
 )
 
 // API constructs an http.Handler with all application routes defined.
-func API(db *sqlx.DB, log *log.Logger) http.Handler {
+func API(db *sqlx.DB, log *log.Logger, authenticator *auth.Authenticator) http.Handler {
 
 	// Construct the web.App which holds all routes as well as common Middleware.
 	app := web.NewApp(log, mid.Logger(log), mid.Errors(log), mid.Metrics())
@@ -23,6 +24,12 @@ func API(db *sqlx.DB, log *log.Logger) http.Handler {
 		c := Check{db: db}
 
 		app.Handle(http.MethodGet, "/v1/health", c.Health)
+	}
+
+	{
+		// Register user handlers.
+		a := Account{db: db, authenticator: authenticator}
+		app.Handle(http.MethodGet, "/v1/account/token", a.Token)
 	}
 
 	{
