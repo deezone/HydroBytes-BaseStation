@@ -29,7 +29,10 @@ func TestStationType(t *testing.T) {
 	test := tests.New(t)
 	defer test.Teardown()
 
-	stationTypeTests := StationTypeTests{app: handlers.API(test.Db, test.Log, test.Authenticator)}
+	stationTypeTests := StationTypeTests{
+		app:        handlers.API(test.Db, test.Log, test.Authenticator),
+		adminToken: test.Token("Admin", "gophers"),
+	}
 
 	t.Run("List", stationTypeTests.List)
 	t.Run("CreateRequiresFields", stationTypeTests.CreateRequiresFields)
@@ -41,11 +44,14 @@ func TestStationType(t *testing.T) {
 // when subtests are registered.
 type StationTypeTests struct {
 	app http.Handler
+	adminToken string
 }
 
 func (st *StationTypeTests) List(t *testing.T) {
 	req := httptest.NewRequest("GET", "/v1/station-types", nil)
 	resp := httptest.NewRecorder()
+
+	req.Header.Set("Authorization", "Bearer " + st.adminToken)
 
 	st.app.ServeHTTP(resp, req)
 
@@ -90,14 +96,16 @@ func (st *StationTypeTests) List(t *testing.T) {
 	}
 }
 
-func (p *StationTypeTests) CreateRequiresFields(t *testing.T) {
+func (st *StationTypeTests) CreateRequiresFields(t *testing.T) {
 	body := strings.NewReader(`{}`)
 	req := httptest.NewRequest("POST", "/v1/station-type", body)
+
+	req.Header.Set("Authorization", "Bearer " + st.adminToken)
 	req.Header.Set("Content-Type", "application/json")
 
 	resp := httptest.NewRecorder()
 
-	p.app.ServeHTTP(resp, req)
+	st.app.ServeHTTP(resp, req)
 
 	if resp.Code != http.StatusBadRequest {
 		t.Fatalf("getting: expected status code %v, got %v", http.StatusBadRequest, resp.Code)
@@ -111,6 +119,7 @@ func (st *StationTypeTests) StationTypeCRUD(t *testing.T) {
 		body := strings.NewReader(`{"name":"stationtype0","description":"Test description 0"}`)
 
 		req := httptest.NewRequest("POST", "/v1/station-type", body)
+		req.Header.Set("Authorization", "Bearer " + st.adminToken)
 		req.Header.Set("Content-Type", "application/json")
 		resp := httptest.NewRecorder()
 
@@ -152,6 +161,7 @@ func (st *StationTypeTests) StationTypeCRUD(t *testing.T) {
 		url := fmt.Sprintf("/v1/station-type/%s", actual["id"])
 		req := httptest.NewRequest("GET", url, nil)
 		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", "Bearer " + st.adminToken)
 		resp := httptest.NewRecorder()
 
 		st.app.ServeHTTP(resp, req)
@@ -176,6 +186,7 @@ func (st *StationTypeTests) StationTypeCRUD(t *testing.T) {
 		url := fmt.Sprintf("/v1/station-type/%s", actual["id"])
 		req := httptest.NewRequest("PUT", url, body)
 		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", "Bearer " + st.adminToken)
 		resp := httptest.NewRecorder()
 
 		st.app.ServeHTTP(resp, req)
@@ -187,6 +198,7 @@ func (st *StationTypeTests) StationTypeCRUD(t *testing.T) {
 		// Retrieve updated record to be sure it worked.
 		req = httptest.NewRequest("GET", url, nil)
 		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", "Bearer " + st.adminToken)
 		resp = httptest.NewRecorder()
 
 		st.app.ServeHTTP(resp, req)
@@ -218,6 +230,7 @@ func (st *StationTypeTests) StationTypeCRUD(t *testing.T) {
 	{ // DELETE
 		url := fmt.Sprintf("/v1/station-type/%s", actual["id"])
 		req := httptest.NewRequest("DELETE", url, nil)
+		req.Header.Set("Authorization", "Bearer " + st.adminToken)
 		resp := httptest.NewRecorder()
 
 		st.app.ServeHTTP(resp, req)
@@ -229,6 +242,7 @@ func (st *StationTypeTests) StationTypeCRUD(t *testing.T) {
 		// Retrieve updated record to be sure it worked.
 		req = httptest.NewRequest("GET", url, nil)
 		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", "Bearer " + st.adminToken)
 		resp = httptest.NewRecorder()
 
 		st.app.ServeHTTP(resp, req)
