@@ -1,6 +1,12 @@
 package tests
 
 import (
+	"crypto/rand"
+	"crypto/rsa"
+	"github.com/deezone/HydroBytes-BaseStation/internal/platform/auth"
+	"log"
+	"os"
+
 	// Core packages
 	"testing"
 	"time"
@@ -72,6 +78,58 @@ func NewUnit(t *testing.T) (*sqlx.DB, func()) {
 	}
 
 	return db, teardown
+}
+
+// Test owns state for running and shutting down tests.
+type Test struct {
+	Db            *sqlx.DB
+	Log           *log.Logger
+	Authenticator *auth.Authenticator
+
+	t       *testing.T
+	cleanup func()
+}
+
+// New creates a database, seeds it, constructs an authenticator.
+func New(t *testing.T) *Test {
+	t.Helper()
+
+	// Initialize and seed database. Store the cleanup function call later.
+	db, cleanup := NewUnit(t)
+
+	if err := schema.Seed(db); err != nil {
+		t.Fatal(err)
+	}
+
+	// Create the logger to use.
+	logger := log.New(os.Stdout, "TEST : ", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
+
+	// Create RSA keys to enable authentication in our service.
+	key, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Build an authenticator using this static key.
+	kid := "4754d86b-7a6d-4df5-9c65-224741361492"
+	kf := auth.NewSimpleKeyLookupFunc(kid, key.Public().(*rsa.PublicKey))
+	authenticator, err := auth.NewAuthenticator(key, kid, "RS256", kf)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return &Test{
+		Db:            db,
+		Log:           logger,
+		Authenticator: authenticator,
+		t:             t,
+		cleanup:       cleanup,
+	}
+}
+
+// Teardown releases any resources used for the test.
+func (test *Test) Teardown() {
+	test.cleanup()
 }
 
 // StringPointer is a helper to get a *string from a string. It is in the tests

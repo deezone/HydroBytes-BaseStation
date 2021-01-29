@@ -2,12 +2,13 @@
 package main
 
 import (
-	"context"
-	"github.com/deezone/HydroBytes-BaseStation/internal/account"
-	"github.com/deezone/HydroBytes-BaseStation/internal/platform/auth"
-	"time"
-
 	// Core Packages
+	"context"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
+	"time"
 	"fmt"
 	"log" // https://golang.org/pkg/log/
 	"os"
@@ -16,6 +17,8 @@ import (
 	"github.com/pkg/errors"
 
 	// Internal applcation packages
+	"github.com/deezone/HydroBytes-BaseStation/internal/account"
+	"github.com/deezone/HydroBytes-BaseStation/internal/platform/auth"
 	"github.com/deezone/HydroBytes-BaseStation/internal/platform/conf"
 	"github.com/deezone/HydroBytes-BaseStation/internal/platform/database"
 	"github.com/deezone/HydroBytes-BaseStation/internal/schema"
@@ -77,13 +80,15 @@ func run() error {
 
 	var err error
 	switch cfg.Args.Num(0) {
+	case "accountAdd":
+		// name, password
+		err = adminAdd(dbConfig, cfg.Args.Num(1), cfg.Args.Num(2))
+	case "keygen":
+		err = keygen(cfg.Args.Num(1))
 	case "migrate":
 		err = migrate(dbConfig)
 	case "seed":
 		err = seed(dbConfig)
-	case "accountAdd":
-		// name, password
-		err = adminAdd(dbConfig, cfg.Args.Num(1), cfg.Args.Num(2))
 	default:
 		err = errors.New("Must specify a command")
 	}
@@ -95,36 +100,7 @@ func run() error {
 	return nil
 }
 
-func migrate(cfg database.Config) error {
-	db, err := database.Open(cfg)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	if err := schema.Migrate(db); err != nil {
-		return err
-	}
-
-	fmt.Println("Migrations complete")
-	return nil
-}
-
-func seed(cfg database.Config) error {
-	db, err := database.Open(cfg)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	if err := schema.Seed(db); err != nil {
-		return err
-	}
-
-	fmt.Println("Seed data complete")
-	return nil
-}
-
+// adminUser creates an admin user
 func adminAdd(cfg database.Config, name, password string) error {
 	db, err := database.Open(cfg)
 	if err != nil {
@@ -164,5 +140,69 @@ func adminAdd(cfg database.Config, name, password string) error {
 	}
 
 	fmt.Println("Account created with id:", a.Id)
+	return nil
+}
+
+// keygen creates an x509 private key for signing auth tokens.
+func keygen(path string) error {
+	if path == "" {
+		return errors.New("keygen missing argument for key path")
+	}
+
+	key, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		return errors.Wrap(err, "generating keys")
+	}
+
+	file, err := os.Create(path)
+	if err != nil {
+		return errors.Wrap(err, "creating private file")
+	}
+	defer file.Close()
+
+	block := pem.Block{
+		Type:  "RSA PRIVATE KEY",
+		Bytes: x509.MarshalPKCS1PrivateKey(key),
+	}
+
+	if err := pem.Encode(file, &block); err != nil {
+		return errors.Wrap(err, "encoding to private file")
+	}
+
+	if err := file.Close(); err != nil {
+		return errors.Wrap(err, "closing private file")
+	}
+
+	return nil
+}
+
+// migrate applies database migrations
+func migrate(cfg database.Config) error {
+	db, err := database.Open(cfg)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	if err := schema.Migrate(db); err != nil {
+		return err
+	}
+
+	fmt.Println("Migrations complete")
+	return nil
+}
+
+func seed(cfg database.Config) error {
+	db, err := database.Open(cfg)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	if err := schema.Seed(db); err != nil {
+		return err
+	}
+
+	fmt.Println("Seed data complete")
 	return nil
 }

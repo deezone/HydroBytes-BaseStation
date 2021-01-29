@@ -4,10 +4,8 @@ import (
 	// Core Packages
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strings"
 	"testing"
 
@@ -15,7 +13,6 @@ import (
 	// make the comparison process easier using the go-cmp library.
 	// Internal packages
 	"github.com/deezone/HydroBytes-BaseStation/cmd/api/internal/handlers"
-	"github.com/deezone/HydroBytes-BaseStation/internal/schema"
 	"github.com/deezone/HydroBytes-BaseStation/internal/tests"
 
 	// Third-party packages
@@ -29,20 +26,14 @@ import (
 // subtest needs a fresh instance of the application it can make it or it
 // should be its own Test* function.
 func TestStation(t *testing.T) {
-	db, teardown := tests.NewUnit(t)
-	defer teardown()
+	test := tests.New(t)
+	defer test.Teardown()
 
-	if err := schema.Seed(db); err != nil {
-		t.Fatal(err)
-	}
+	productTests := StationTests{app: handlers.API(test.Db, test.Log, test.Authenticator)}
 
-	log := log.New(os.Stderr, "TEST : ", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
-
-	tests := StationTests{app: handlers.API(db, log)}
-
-	t.Run("ListStations", tests.ListStations)
-	t.Run("CreateRequiresFields", tests.CreateRequiresFields)
-	t.Run("StationCRUD", tests.StationCRUD)
+	t.Run("ListStations", productTests.ListStations)
+	t.Run("CreateRequiresFields", productTests.CreateRequiresFields)
+	t.Run("StationCRUD", productTests.StationCRUD)
 }
 
 // StationTests holds methods for each station subtest. This type allows
@@ -107,14 +98,14 @@ func (st *StationTests) ListStations(t *testing.T) {
 	}
 }
 
-func (p *StationTests) CreateRequiresFields(t *testing.T) {
+func (st *StationTests) CreateRequiresFields(t *testing.T) {
 	body := strings.NewReader(`{}`)
 	req := httptest.NewRequest("POST", "/v1/station-type/5c86bbaa-4ef8-11eb-ae93-0242ac130002/station", body)
 	req.Header.Set("Content-Type", "application/json")
 
 	resp := httptest.NewRecorder()
 
-	p.app.ServeHTTP(resp, req)
+	st.app.ServeHTTP(resp, req)
 
 	if resp.Code != http.StatusBadRequest {
 		t.Fatalf("getting: expected status code %v, got %v", http.StatusBadRequest, resp.Code)
@@ -234,6 +225,29 @@ func (st *StationTests) StationCRUD(t *testing.T) {
 		// Updated station type should match the one we created.
 		if diff := cmp.Diff(want, updated); diff != "" {
 			t.Fatalf("Retrieved station should match created. Diff:\n%s", diff)
+		}
+	}
+
+	{ // DELETE
+		url := fmt.Sprintf("/v1/station/%s", actual["id"])
+		req := httptest.NewRequest("DELETE", url, nil)
+		resp := httptest.NewRecorder()
+
+		st.app.ServeHTTP(resp, req)
+
+		if http.StatusNoContent != resp.Code {
+			t.Fatalf("updating: expected status code %v, got %v", http.StatusNoContent, resp.Code)
+		}
+
+		// Retrieve updated record to be sure it worked.
+		req = httptest.NewRequest("GET", url, nil)
+		req.Header.Set("Content-Type", "application/json")
+		resp = httptest.NewRecorder()
+
+		st.app.ServeHTTP(resp, req)
+
+		if http.StatusNotFound != resp.Code {
+			t.Fatalf("retrieving: expected status code %v, got %v", http.StatusNotFound, resp.Code)
 		}
 	}
 }

@@ -1,7 +1,39 @@
 package auth
 
+import (
+	// Core packages
+	"time"
+
+	// Third-party packages
+	jwt "github.com/dgrijalva/jwt-go" // json web tokens "jwt" - https://jwt.io/
+)
+
 // These are the expected values for Claims.Roles.
 const (
 	RoleAdmin = "ADMIN"
 	RoleStation  = "STATION"
 )
+
+// Claims represents the authorization claims transmitted via a JWT.
+type Claims struct {
+	Roles []string `json:"roles"`
+	jwt.StandardClaims
+}
+
+/**
+ * NewClaims constructs a Claims value for the identified account. The Claims
+ * expire within a specified duration of the provided time. Additional fields
+ * of the Claims can be set after calling NewClaims is desired.
+ */
+func NewClaims(subject string, roles []string, now time.Time, expires time.Duration) Claims {
+	c := Claims{
+		Roles: roles,
+		StandardClaims: jwt.StandardClaims{
+			Subject:   subject,                 // account id
+			IssuedAt:  now.Unix(),
+			ExpiresAt: now.Add(expires).Unix(),
+		},
+	}
+
+	return c
+}
