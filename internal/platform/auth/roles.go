@@ -26,7 +26,7 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-// NewClaims constructs a Claims value for the identified user. The Claims
+// NewClaims constructs a Claims value for the identified account. The Claims
 // expire within a specified duration of the provided time. Additional fields
 // of the Claims can be set after calling NewClaims is desired.
 func NewClaims(subject string, roles []string, now time.Time, expires time.Duration) Claims {
@@ -40,4 +40,16 @@ func NewClaims(subject string, roles []string, now time.Time, expires time.Durat
 	}
 
 	return c
+}
+
+// HasRole returns true if the claims has at least one of the provided roles.
+func (c Claims) HasRole(roles ...string) bool {
+	for _, has := range c.Roles {
+		for _, want := range roles {
+			if has == want {
+				return true
+			}
+		}
+	}
+	return false
 }

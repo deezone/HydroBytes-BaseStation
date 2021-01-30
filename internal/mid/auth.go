@@ -14,6 +14,13 @@ import (
 	"github.com/pkg/errors"
 )
 
+// ErrForbidden is returned when an authenticated account does not have a
+// sufficient role for an action.
+var ErrForbidden = web.NewRequestError(
+	errors.New("you are not authorized for that action"),
+	http.StatusForbidden,
+)
+
 // Authenticate validates a JWT from the `Authorization` header.
 func Authenticate(authenticator *auth.Authenticator) web.Middleware {
 
@@ -37,6 +44,33 @@ func Authenticate(authenticator *auth.Authenticator) web.Middleware {
 
 			// Add claims to the context so they can be retrieved later.
 			ctx = context.WithValue(ctx, auth.Key, claims)
+
+			return after(ctx, w, r)
+		}
+
+		return h
+	}
+
+	return f
+}
+
+// HasRole validates that an authenticated account has at least one role from a
+// specified list. This method constructs the actual function that is used.
+func HasRole(roles ...string) web.Middleware {
+
+	// This is the actual middleware function to be executed.
+	f := func(after web.Handler) web.Handler {
+
+		h := func(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+
+			claims, ok := ctx.Value(auth.Key).(auth.Claims)
+			if !ok {
+				return errors.New("claims missing from context: HasRole called without/before Authenticate")
+			}
+
+			if !claims.HasRole(roles...) {
+				return ErrForbidden
+			}
 
 			return after(ctx, w, r)
 		}
