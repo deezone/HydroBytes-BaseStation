@@ -17,7 +17,10 @@ func TestAccount(t *testing.T) {
 	test := tests.New(t)
 	defer test.Teardown()
 
-	ut := AccountTests{app: handlers.API(test.Db, test.Log, test.Authenticator)}
+	ut := AccountTests{
+		app:        handlers.API(test.Db, test.Log, test.Authenticator),
+		adminToken: test.Token("Admin", "gophers"),
+	}
 
 	t.Run("TokenRequireAuth", ut.TokenRequireAuth)
 	t.Run("TokenDenyUnknown", ut.TokenDenyUnknown)
@@ -30,6 +33,7 @@ func TestAccount(t *testing.T) {
 // subtests are registered.
 type AccountTests struct {
 	app http.Handler
+	adminToken string
 }
 
 // TokenRequireAuth ensures that requests with no authentication are denied.

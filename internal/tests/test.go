@@ -1,9 +1,9 @@
 package tests
 
 import (
+	"context"
 	"crypto/rand"
 	"crypto/rsa"
-	"github.com/deezone/HydroBytes-BaseStation/internal/platform/auth"
 	"log"
 	"os"
 
@@ -12,9 +12,11 @@ import (
 	"time"
 
 	// Internal packages
+	"github.com/deezone/HydroBytes-BaseStation/internal/platform/auth"
 	"github.com/deezone/HydroBytes-BaseStation/internal/platform/database"
 	"github.com/deezone/HydroBytes-BaseStation/internal/platform/database/databasetest"
 	"github.com/deezone/HydroBytes-BaseStation/internal/schema"
+	"github.com/deezone/HydroBytes-BaseStation/internal/account"
 
 	// Third-party packages
 	"github.com/jmoiron/sqlx"
@@ -130,6 +132,26 @@ func New(t *testing.T) *Test {
 // Teardown releases any resources used for the test.
 func (test *Test) Teardown() {
 	test.cleanup()
+}
+
+// Token generates an authenticated token for a account.
+func (test *Test) Token(name, pass string) string {
+	test.t.Helper()
+
+	claims, err := account.Authenticate(
+		context.Background(), test.Db, time.Now(),
+		name, pass,
+	)
+	if err != nil {
+		test.t.Fatal(err)
+	}
+
+	tkn, err := test.Authenticator.GenerateToken(claims)
+	if err != nil {
+		test.t.Fatal(err)
+	}
+
+	return tkn
 }
 
 // StringPointer is a helper to get a *string from a string. It is in the tests

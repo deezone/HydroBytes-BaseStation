@@ -48,9 +48,12 @@ func NewApp(log *log.Logger, mw ...Middleware) *App {
 //
 // It converts our custom handler type to the std lib Handler type. It captures
 // errors from the handler and serves them to the client in a uniform way.
-func (a *App) Handle(method, url string, h Handler) {
+func (a *App) Handle(method, url string, h Handler, mw ...Middleware) {
 
-	// wrap the application's middleware around this endpoint's handler.
+	// First wrap handler specific middleware around this handler.
+	h = wrapMiddleware(mw, h)
+
+	// Add the application's general middleware to the handler chain.
 	h = wrapMiddleware(a.mw, h)
 
 	// Create a function that conforms to the std lib definition of a handler.

@@ -36,7 +36,7 @@ func NewSimpleKeyLookupFunc(activeKID string, publicKey *rsa.PublicKey) KeyLooku
 }
 
 // Authenticator is used to authenticate clients. It can generate a token for a
-// set of account claims and recreate the claims by parsing the token.
+// set of user claims and recreate the claims by parsing the token.
 type Authenticator struct {
 	privateKey       *rsa.PrivateKey
 	activeKID        string
@@ -64,12 +64,9 @@ func NewAuthenticator(privateKey *rsa.PrivateKey, activeKID, algorithm string, p
 		return nil, errors.New("public key function cannot be nil")
 	}
 
-	/**
-	 * Create the token parser to use. The algorithm used to sign the JWT must be
-     * validated to avoid a critical vulnerability:
-	 * https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/
-	 * Must be set to ensure "none" parser is not accepted
-	 */
+	// Create the token parser to use. The algorithm used to sign the JWT must be
+	// validated to avoid a critical vulnerability:
+	// https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/
 	parser := jwt.Parser{
 		ValidMethods: []string{algorithm},
 	}
@@ -85,7 +82,7 @@ func NewAuthenticator(privateKey *rsa.PrivateKey, activeKID, algorithm string, p
 	return &a, nil
 }
 
-// GenerateToken generates a signed JWT token string representing the account Claims.
+// GenerateToken generates a signed JWT token string representing the user Claims.
 func (a *Authenticator) GenerateToken(claims Claims) (string, error) {
 	method := jwt.GetSigningMethod(a.algorithm)
 
@@ -98,4 +95,37 @@ func (a *Authenticator) GenerateToken(claims Claims) (string, error) {
 	}
 
 	return jwtstr, nil
+}
+
+// ParseClaims recreates the Claims that were used to generate a token. It
+// verifies that the token was signed using our key.
+func (a *Authenticator) ParseClaims(tokenStr string) (Claims, error) {
+
+	// f is a function that returns the public key for validating a token. We use
+	// the parsed (but unverified) token to find the key id. That ID is passed to
+	// our KeyFunc to find the public key to use for verification.
+	keyFunc := func(t *jwt.Token) (interface{}, error) {
+		kid, ok := t.Header["kid"]
+		if !ok {
+			return nil, errors.New("missing key id (kid) in token header")
+		}
+		userKID, ok := kid.(string)
+		if !ok {
+			return nil, errors.New("user token key id (kid) must be string")
+		}
+
+		return a.pubKeyLookupFunc(userKID)
+	}
+
+	var claims Claims
+	token, err := a.parser.ParseWithClaims(tokenStr, &claims, keyFunc)
+	if err != nil {
+		return Claims{}, errors.Wrap(err, "parsing token")
+	}
+
+	if !token.Valid {
+		return Claims{}, errors.New("invalid token")
+	}
+
+	return claims, nil
 }
