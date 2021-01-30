@@ -27,7 +27,7 @@ func API(db *sqlx.DB, log *log.Logger, authenticator *auth.Authenticator) http.H
 	}
 
 	{
-		// Register user handlers.
+		// Register account handlers.
 		a := Account{db: db, authenticator: authenticator}
 		app.Handle(http.MethodGet, "/v1/account/token", a.Token)
 	}
@@ -36,17 +36,37 @@ func API(db *sqlx.DB, log *log.Logger, authenticator *auth.Authenticator) http.H
 		// Register StationType handlers. Ensure all routes are authenticated.
 		st := StationType{db: db, log: log}
 
+		// StationType
 		app.Handle(http.MethodGet,    "/v1/station-types",     st.List,     mid.Authenticate(authenticator))
 		app.Handle(http.MethodGet,    "/v1/station-type/{id}", st.Retrieve, mid.Authenticate(authenticator))
-		app.Handle(http.MethodPost,   "/v1/station-type",      st.Create,   mid.Authenticate(authenticator))
-		app.Handle(http.MethodPut,    "/v1/station-type/{id}", st.Update,   mid.Authenticate(authenticator))
-		app.Handle(http.MethodDelete, "/v1/station-type/{id}", st.Delete,   mid.Authenticate(authenticator))
+		app.Handle(http.MethodPost,   "/v1/station-type",      st.Create,
+			mid.Authenticate(authenticator),
+			mid.HasRole(auth.RoleAdmin),
+		)
+		app.Handle(http.MethodPut,    "/v1/station-type/{id}", st.Update,
+			mid.Authenticate(authenticator),
+			mid.HasRole(auth.RoleAdmin),
+		)
+		app.Handle(http.MethodDelete, "/v1/station-type/{id}", st.Delete,
+			mid.Authenticate(authenticator),
+			mid.HasRole(auth.RoleAdmin),
+		)
 
+		// Station
 		app.Handle(http.MethodGet,    "/v1/station-type/{id}/stations", st.ListStations,    mid.Authenticate(authenticator))
 		app.Handle(http.MethodGet,    "/v1/station/{id}",               st.RetrieveStation, mid.Authenticate(authenticator))
-		app.Handle(http.MethodPost,   "/v1/station-type/{id}/station",  st.AddStation,      mid.Authenticate(authenticator))
-		app.Handle(http.MethodPut,    "/v1/station/{id}",               st.AdjustStation,   mid.Authenticate(authenticator))
-		app.Handle(http.MethodDelete, "/v1/station/{id}",               st.DeleteStation,   mid.Authenticate(authenticator))
+		app.Handle(http.MethodPost,   "/v1/station-type/{id}/station",  st.AddStation,
+			mid.Authenticate(authenticator),
+			mid.HasRole(auth.RoleAdmin),
+		)
+		app.Handle(http.MethodPut,    "/v1/station/{id}",               st.AdjustStation,
+			mid.Authenticate(authenticator),
+			mid.HasRole(auth.RoleAdmin),
+		)
+		app.Handle(http.MethodDelete, "/v1/station/{id}",               st.DeleteStation,
+			mid.Authenticate(authenticator),
+			mid.HasRole(auth.RoleAdmin),
+		)
 	}
 
 	return app
