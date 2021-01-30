@@ -14,10 +14,10 @@ import (
 // in seeds.go
 
 var migrations = []darwin.Migration{
-	{
-		Version:	 1,
-		Description: "Add station types",
-		Script: `
+    {
+        Version:     1,
+        Description: "Add station types",
+        Script: `
 CREATE TABLE station_type (
 	id           UUID PRIMARY KEY,
 	name         TEXT,
@@ -25,14 +25,14 @@ CREATE TABLE station_type (
 	date_created TIMESTAMP,
 	date_updated TIMESTAMP
 );`,
-	},
-	{
-		Version:     2,
-		Description: "Add station",
-		Script: `
+    },
+    {
+        Version:     2,
+        Description: "Add station",
+        Script: `
 CREATE TABLE station (
 	id              UUID PRIMARY KEY,
-	station_type_id UUID,
+	station_type_id UUID NOT NULL,
 	name            TEXT,
 	description     TEXT,
 	location_x      INT,
@@ -45,20 +45,31 @@ CREATE TABLE station (
 		REFERENCES station_type(id)
 		ON DELETE CASCADE
 );`,
-	},
-	{
-		Version:     3,
-		Description: "Add accounts",
-		Script: `
+    },
+    {
+        Version:     3,
+        Description: "Add accounts",
+        Script: `
 CREATE TABLE account (
-	id       UUID,
+    id            UUID PRIMARY KEY,
 	name          TEXT UNIQUE,
 	roles         TEXT[],
 	password_hash TEXT,
-	date_created TIMESTAMP,
-	date_updated TIMESTAMP,
-	PRIMARY KEY (id)
+	date_created  TIMESTAMP,
+	date_updated  TIMESTAMP
 );`,
+	},
+	{
+        Version:     4,
+        Description: "Add account column to stations",
+        Script: `
+ALTER TABLE station
+    ADD COLUMN account_id UUID NOT NULL,
+    ADD CONSTRAINT fk_account_id
+        FOREIGN KEY (account_id)
+        REFERENCES account(id)
+        ON DELETE CASCADE;
+`,
 	},
 }
 
