@@ -12,7 +12,7 @@ import (
 	"github.com/deezone/HydroBytes-BaseStation/internal/tests"
 )
 
-// TestUsers runs a series of tests to exercise User behavior.
+// TestAccount runs a series of tests to exercise Account behavior.
 func TestAccount(t *testing.T) {
 	test := tests.New(t)
 	defer test.Teardown()

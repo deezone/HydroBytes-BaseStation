@@ -100,7 +100,7 @@ func run() error {
 	return nil
 }
 
-// adminUser creates an admin user
+// adminAccount creates an admin account
 func adminAdd(cfg database.Config, name, password string) error {
 	db, err := database.Open(cfg)
 	if err != nil {

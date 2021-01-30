@@ -35,7 +35,7 @@ func Authenticate(ctx context.Context, db *sqlx.DB, now time.Time, name, passwor
 	if err := db.GetContext(ctx, &a, q, name); err != nil {
 
 		// Normally we would return ErrNotFound in this scenario but we do not want
-		// to leak to an unauthenticated user which emails are in the system.
+		// to leak to an unauthenticated account which emails are in the system.
 		if err == sql.ErrNoRows {
 			return auth.Claims{}, ErrAuthenticationFailure
 		}

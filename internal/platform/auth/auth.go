@@ -36,7 +36,7 @@ func NewSimpleKeyLookupFunc(activeKID string, publicKey *rsa.PublicKey) KeyLooku
 }
 
 // Authenticator is used to authenticate clients. It can generate a token for a
-// set of user claims and recreate the claims by parsing the token.
+// set of account claims and recreate the claims by parsing the token.
 type Authenticator struct {
 	privateKey       *rsa.PrivateKey
 	activeKID        string
@@ -82,7 +82,7 @@ func NewAuthenticator(privateKey *rsa.PrivateKey, activeKID, algorithm string, p
 	return &a, nil
 }
 
-// GenerateToken generates a signed JWT token string representing the user Claims.
+// GenerateToken generates a signed JWT token string representing the account Claims.
 func (a *Authenticator) GenerateToken(claims Claims) (string, error) {
 	method := jwt.GetSigningMethod(a.algorithm)
 
@@ -109,12 +109,12 @@ func (a *Authenticator) ParseClaims(tokenStr string) (Claims, error) {
 		if !ok {
 			return nil, errors.New("missing key id (kid) in token header")
 		}
-		userKID, ok := kid.(string)
+		accountKID, ok := kid.(string)
 		if !ok {
-			return nil, errors.New("user token key id (kid) must be string")
+			return nil, errors.New("account token key id (kid) must be string")
 		}
 
-		return a.pubKeyLookupFunc(userKID)
+		return a.pubKeyLookupFunc(accountKID)
 	}
 
 	var claims Claims
