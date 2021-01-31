@@ -12,6 +12,7 @@ import (
 
 	// Third-party packages
 	"github.com/pkg/errors"
+	"go.opencensus.io/trace"
 )
 
 // ErrForbidden is returned when an authenticated account does not have a
@@ -29,6 +30,10 @@ func Authenticate(authenticator *auth.Authenticator) web.Middleware {
 
 		// Wrap this handler around the next one provided.
 		h := func(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+
+			ctx, span := trace.StartSpan(ctx, "internal.mid.Authenticate")
+			defer span.End()
+
 			// Parse the authorization header. Expected header is of
 			// the format `Bearer <token>`.
 			parts := strings.Split(r.Header.Get("Authorization"), " ")
@@ -37,10 +42,15 @@ func Authenticate(authenticator *auth.Authenticator) web.Middleware {
 				return web.NewRequestError(err, http.StatusUnauthorized)
 			}
 
+			// Start a span to measure just the time spent in ParseClaims.
+			_, span = trace.StartSpan(ctx, "auth.ParseClaims")
+
 			claims, err := authenticator.ParseClaims(parts[1])
 			if err != nil {
 				return web.NewRequestError(err, http.StatusUnauthorized)
 			}
+
+			span.End()
 
 			// Add claims to the context so they can be retrieved later.
 			ctx = context.WithValue(ctx, auth.Key, claims)
@@ -62,6 +72,9 @@ func HasRole(roles ...string) web.Middleware {
 	f := func(after web.Handler) web.Handler {
 
 		h := func(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+
+			ctx, span := trace.StartSpan(ctx, "internal.mid.HasRole")
+			defer span.End()
 
 			claims, ok := ctx.Value(auth.Key).(auth.Claims)
 			if !ok {
