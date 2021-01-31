@@ -7,6 +7,7 @@ import (
 	// Third-party packages
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq" // https://pkg.go.dev/github.com/lib/pq
+	"go.opencensus.io/trace"
 )
 
 // Config is the required properties to use the database.
@@ -52,6 +53,9 @@ func Open(cfg Config) (*sqlx.DB, error) {
 // StatusCheck returns nil if it can successfully talk to the database. It
 // returns a non-nil error otherwise.
 func StatusCheck(ctx context.Context, db *sqlx.DB) error {
+
+	ctx, span := trace.StartSpan(ctx, "platform.DB.StatusCheck")
+	defer span.End()
 
 	// Confirm connection to database exists, could be cached
 	if err := db.Ping();err != nil {
