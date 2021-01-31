@@ -21,3 +21,12 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - 5432:5432
+
+  # This sidecar allows for the viewing of traces.
+  zipkin:
+    container_name: zipkin
+    networks:
+      - shared-network
+    image: openzipkin/zipkin:2.11
+    ports:
+      - 9411:9411
