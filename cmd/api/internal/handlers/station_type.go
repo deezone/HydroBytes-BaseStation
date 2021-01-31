@@ -16,6 +16,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
+	"go.opencensus.io/trace"
 )
 
 type StationType struct {
@@ -26,6 +27,9 @@ type StationType struct {
 // Create decodes the body of a request to create a new station type. The full
 // station type with generated fields is sent back in the response.
 func (st *StationType) Create(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+
+	ctx, span := trace.StartSpan(ctx, "handlers.StationType.Create")
+	defer span.End()
 
 	var nst station_type.NewStationType
 
@@ -43,6 +47,10 @@ func (st *StationType) Create(ctx context.Context, w http.ResponseWriter, r *htt
 
 // Delete removes a single station type identified by an ID in the request URL.
 func (p *StationType) Delete(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+
+	ctx, span := trace.StartSpan(ctx, "handlers.StationType.Delete")
+	defer span.End()
+
 	id := chi.URLParam(r, "id")
 
 	if err := station_type.Delete(ctx, p.db, id); err != nil {
@@ -69,6 +77,9 @@ func (p *StationType) Delete(ctx context.Context, w http.ResponseWriter, r *http
  */
 func (st *StationType) List(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 
+	ctx, span := trace.StartSpan(ctx, "handlers.Product.List")
+	defer span.End()
+
 	list, err := station_type.List(ctx, st.db)
 	if err != nil {
 		return errors.Wrap(err, "getting station type list")
@@ -79,6 +90,10 @@ func (st *StationType) List(ctx context.Context, w http.ResponseWriter, r *http.
 
 // Retrieve finds a station type identified by a station type ID in the request URL.
 func (st *StationType) Retrieve(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+
+	ctx, span := trace.StartSpan(ctx, "handlers.StationType.Retrieve")
+	defer span.End()
+
 	id := chi.URLParam(r, "id")
 
 	stationTypes, err := station_type.Retrieve(ctx, st.db, id)
@@ -99,6 +114,9 @@ func (st *StationType) Retrieve(ctx context.Context, w http.ResponseWriter, r *h
 // Update decodes the body of a request to update an existing station type. The ID
 // of the station type is part of the request URL.
 func (st *StationType) Update(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	ctx, span := trace.StartSpan(ctx, "handlers.StationType.Update")
+	defer span.End()
+
 	id := chi.URLParam(r, "id")
 
 	var update station_type.UpdateStationType
@@ -128,6 +146,9 @@ func (st *StationType) Update(ctx context.Context, w http.ResponseWriter, r *htt
 // object in the request body. The full model is returned to the caller.
 func (st *StationType) AddStation(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 
+	ctx, span := trace.StartSpan(ctx, "handlers.Station.AddStation")
+	defer span.End()
+
 	claims, ok := ctx.Value(auth.Key).(auth.Claims)
 	if !ok {
 		return errors.New("claims missing from context")
@@ -151,6 +172,10 @@ func (st *StationType) AddStation(ctx context.Context, w http.ResponseWriter, r 
 // AdjustStation decodes the body of a request to update an existing station. The ID
 // of the station is part of the request URL.
 func (st *StationType) AdjustStation(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+
+	ctx, span := trace.StartSpan(ctx, "handlers.Station.AdjustStation")
+	defer span.End()
+
 	id := chi.URLParam(r, "id")
 
 	claims, ok := ctx.Value(auth.Key).(auth.Claims)
@@ -181,6 +206,10 @@ func (st *StationType) AdjustStation(ctx context.Context, w http.ResponseWriter,
 
 // DeleteStation removes a single station identified by an ID in the request URL.
 func (p *StationType) DeleteStation(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+
+	ctx, span := trace.StartSpan(ctx, "handlers.Station.DeleteStation")
+	defer span.End()
+
 	id := chi.URLParam(r, "id")
 
 	if err := station_type.DeleteStation(ctx, p.db, id); err != nil {
@@ -197,6 +226,10 @@ func (p *StationType) DeleteStation(ctx context.Context, w http.ResponseWriter, 
 
 // ListStations gets all sales for a particular station type.
 func (st *StationType) ListStations(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+
+	ctx, span := trace.StartSpan(ctx, "handlers.Station.ListStations")
+	defer span.End()
+
 	id := chi.URLParam(r, "id")
 
 	list, err := station_type.ListStations(ctx, st.db, id)
@@ -209,6 +242,10 @@ func (st *StationType) ListStations(ctx context.Context, w http.ResponseWriter, 
 
 // RetrieveStation finds a single station identified by an ID in the request URL.
 func (st *StationType) RetrieveStation(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+
+	ctx, span := trace.StartSpan(ctx, "handlers.Station.RetrieveStation")
+	defer span.End()
+
 	id := chi.URLParam(r, "id")
 
 	station, err := station_type.RetrieveStation(ctx, st.db, id)

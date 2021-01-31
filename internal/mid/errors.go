@@ -8,6 +8,9 @@ import (
 
 	// Internal packages
 	"github.com/deezone/HydroBytes-BaseStation/internal/platform/web"
+
+	// Third-party packages
+	"go.opencensus.io/trace"
 )
 
 // Errors handles errors coming out of the call chain. It detects normal
@@ -19,6 +22,9 @@ func Errors(log *log.Logger) web.Middleware {
 	f := func(before web.Handler) web.Handler {
 
 		h := func(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+
+			ctx, span := trace.StartSpan(ctx, "internal.mid.Errors")
+			defer span.End()
 
 			// Run the handler chain and catch any propagated error.
 			if err := before(ctx, w, r); err != nil {

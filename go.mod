@@ -3,6 +3,7 @@ module github.com/deezone/HydroBytes-BaseStation
 go 1.14
 
 require (
+	contrib.go.opencensus.io/exporter/zipkin v0.1.2
 	github.com/DATA-DOG/go-sqlmock v1.5.0 // indirect
 	github.com/GuiaBolso/darwin v0.0.0-20191218124601-fd6d2aa3d244
 	github.com/cznic/b v0.0.0-20181122101859-a26611c4d92d // indirect
@@ -28,9 +29,11 @@ require (
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/lib/pq v1.9.0
 	github.com/mattn/go-sqlite3 v1.14.6 // indirect
+	github.com/openzipkin/zipkin-go v0.2.5
 	github.com/pkg/errors v0.9.1
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
-	golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
+	go.opencensus.io v0.22.6
+	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 	golang.org/x/sys v0.0.0-20210110051926-789bb1bd4061 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/appengine v1.6.7 // indirect

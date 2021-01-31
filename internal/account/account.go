@@ -14,6 +14,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
+	"go.opencensus.io/trace"
 )
 
 var (
@@ -28,6 +29,9 @@ var (
  */
 
 func Authenticate(ctx context.Context, db *sqlx.DB, now time.Time, name, password string) (auth.Claims, error) {
+
+	ctx, span := trace.StartSpan(ctx, "internal.account.Authenticate")
+	defer span.End()
 
 	const q = `SELECT * FROM account WHERE name = $1`
 
@@ -57,6 +61,9 @@ func Authenticate(ctx context.Context, db *sqlx.DB, now time.Time, name, passwor
 
 // Create inserts a new account into the database.
 func Create(ctx context.Context, db *sqlx.DB, n NewAccount, now time.Time) (*Account, error) {
+
+	ctx, span := trace.StartSpan(ctx, "internal.account.Create")
+	defer span.End()
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(n.Password), bcrypt.DefaultCost)
 	if err != nil {
