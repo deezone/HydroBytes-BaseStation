@@ -22,8 +22,12 @@ import (
 	"github.com/deezone/HydroBytes-BaseStation/internal/platform/database"
 
 	// Third-party packages
+	"contrib.go.opencensus.io/exporter/zipkin"
 	"github.com/dgrijalva/jwt-go"
+	openzipkin "github.com/openzipkin/zipkin-go"
+	zipkinHTTP "github.com/openzipkin/zipkin-go/reporter/http"
 	"github.com/pkg/errors"
+	"go.opencensus.io/trace"
 )
 
 // Main entry point for program.
@@ -73,6 +77,11 @@ func run() error {
 			KeyID          string `conf:"default:1"`
 			PrivateKeyFile string `conf:"default:private.pem"`
 			Algorithm      string `conf:"default:RS256"`
+		}
+		Trace struct {
+			URL         string  `conf:"default:http://localhost:9411/api/v2/spans"`
+			Service     string  `conf:"default:station-api"`
+			Probability float64 `conf:"default:1"`
 		}
 	}
 
@@ -126,6 +135,20 @@ func run() error {
 		return errors.Wrap(err, "connecting to db")
 	}
 	defer db.Close()
+
+	// =========================================================================
+	// Start Tracing Support
+
+	closer, err := registerTracer(
+		cfg.Trace.Service,
+		cfg.Web.Address,
+		cfg.Trace.URL,
+		cfg.Trace.Probability,
+	)
+	if err != nil {
+		return err
+	}
+	defer closer()
 
 	// =========================================================================
 	// Start Debug Service
