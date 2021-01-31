@@ -10,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
+	"go.opencensus.io/trace"
 )
 
 // Predefined errors identify expected failure conditions.
@@ -24,6 +25,10 @@ var (
 // Create adds a StationType to the database. It returns the created StationType with
 // fields like ID and DateCreated populated.
 func Create(ctx context.Context, db *sqlx.DB, nst NewStationType, now time.Time) (*StationType, error) {
+
+	ctx, span := trace.StartSpan(ctx, "internal.station_type.Create")
+	defer span.End()
+
 	st := StationType{
 		Id:          uuid.New().String(),
 		Name:        nst.Name,
@@ -54,6 +59,10 @@ func Create(ctx context.Context, db *sqlx.DB, nst NewStationType, now time.Time)
 
 // Delete removes the station type identified by a given ID.
 func Delete(ctx context.Context, db *sqlx.DB, id string) error {
+
+	ctx, span := trace.StartSpan(ctx, "internal.station_type.Delete")
+	defer span.End()
+
 	// Validate id is a valid uuid
 	if _, err := uuid.Parse(id); err != nil {
 		return ErrInvalidID
@@ -70,6 +79,10 @@ func Delete(ctx context.Context, db *sqlx.DB, id string) error {
 
 // List gets all StationType from the database.
 func List(ctx context.Context, db *sqlx.DB) ([]StationType, error) {
+
+	ctx, span := trace.StartSpan(ctx, "internal.station_type.List")
+	defer span.End()
+
 	station_type := []StationType{}
 
 	const q = `
@@ -93,6 +106,10 @@ func List(ctx context.Context, db *sqlx.DB) ([]StationType, error) {
 
 // Retrieve gets a specific StationType and all the stations of that type from the database.
 func Retrieve(ctx context.Context, db *sqlx.DB, id string) (*StationType, error) {
+
+	ctx, span := trace.StartSpan(ctx, "internal.station_type.Retrieve")
+	defer span.End()
+
 	if _, err := uuid.Parse(id); err != nil {
 		return nil, ErrInvalidID
 	}
@@ -126,6 +143,10 @@ func Retrieve(ctx context.Context, db *sqlx.DB, id string) (*StationType, error)
 // Update modifies data about a StationType. It will error if the specified ID is
 // invalid or does not reference an existing StationType.
 func Update(ctx context.Context, db *sqlx.DB, id string, update UpdateStationType, now time.Time) error {
+
+	ctx, span := trace.StartSpan(ctx, "internal.station_type.Update")
+	defer span.End()
+
 	st, err := Retrieve(ctx, db, id)
 	if err != nil {
 		return err
