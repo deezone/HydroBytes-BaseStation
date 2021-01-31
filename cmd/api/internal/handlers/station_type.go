@@ -8,6 +8,7 @@ import (
 	"time"
 
 	// Internal packages
+	"github.com/deezone/HydroBytes-BaseStation/internal/platform/auth"
 	"github.com/deezone/HydroBytes-BaseStation/internal/platform/web"
 	"github.com/deezone/HydroBytes-BaseStation/internal/station_type"
 
@@ -76,7 +77,7 @@ func (st *StationType) List(ctx context.Context, w http.ResponseWriter, r *http.
 	return web.Respond(ctx, w, list, http.StatusOK)
 }
 
-// Retrieve finds all stations of a station type identified by a station type ID in the request URL.
+// Retrieve finds a station type identified by a station type ID in the request URL.
 func (st *StationType) Retrieve(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	id := chi.URLParam(r, "id")
 
@@ -126,6 +127,12 @@ func (st *StationType) Update(ctx context.Context, w http.ResponseWriter, r *htt
 // AddStation creates a new Station for a particular station_type. It looks for a JSON
 // object in the request body. The full model is returned to the caller.
 func (st *StationType) AddStation(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+
+	claims, ok := ctx.Value(auth.Key).(auth.Claims)
+	if !ok {
+		return errors.New("claims missing from context")
+	}
+
 	var ns station_type.NewStation
 	if err := web.Decode(r, &ns); err != nil {
 		return errors.Wrap(err, "decoding new station")
@@ -133,7 +140,7 @@ func (st *StationType) AddStation(ctx context.Context, w http.ResponseWriter, r 
 
 	stationTypeId := chi.URLParam(r, "id")
 
-	station, err := station_type.AddStation(ctx, st.db, ns, stationTypeId, time.Now())
+	station, err := station_type.AddStation(ctx, st.db, claims, ns, stationTypeId, time.Now())
 	if err != nil {
 		return errors.Wrap(err, "adding new sale")
 	}
@@ -141,7 +148,38 @@ func (st *StationType) AddStation(ctx context.Context, w http.ResponseWriter, r 
 	return web.Respond(ctx, w, station, http.StatusCreated)
 }
 
-// Delete removes a single station identified by an ID in the request URL.
+// AdjustStation decodes the body of a request to update an existing station. The ID
+// of the station is part of the request URL.
+func (st *StationType) AdjustStation(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	id := chi.URLParam(r, "id")
+
+	claims, ok := ctx.Value(auth.Key).(auth.Claims)
+	if !ok {
+		return errors.New("claims missing from context")
+	}
+
+	var update station_type.UpdateStation
+	if err := web.Decode(r, &update); err != nil {
+		return errors.Wrap(err, "decoding station update")
+	}
+
+	if err := station_type.AdjustStation(ctx, st.db, claims, id, update, time.Now()); err != nil {
+		switch err {
+		case station_type.ErrStationNotFound:
+			return web.NewRequestError(err, http.StatusNotFound)
+		case station_type.ErrInvalidID:
+			return web.NewRequestError(err, http.StatusBadRequest)
+		case station_type.ErrForbidden:
+			return web.NewRequestError(err, http.StatusForbidden)
+		default:
+			return errors.Wrapf(err, "updating station %q", id)
+		}
+	}
+
+	return web.Respond(ctx, w, nil, http.StatusNoContent)
+}
+
+// DeleteStation removes a single station identified by an ID in the request URL.
 func (p *StationType) DeleteStation(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	id := chi.URLParam(r, "id")
 
@@ -169,7 +207,7 @@ func (st *StationType) ListStations(ctx context.Context, w http.ResponseWriter, 
 	return web.Respond(ctx, w, list, http.StatusOK)
 }
 
-// Retrieve finds a single station identified by an ID in the request URL.
+// RetrieveStation finds a single station identified by an ID in the request URL.
 func (st *StationType) RetrieveStation(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	id := chi.URLParam(r, "id")
 
@@ -186,28 +224,4 @@ func (st *StationType) RetrieveStation(ctx context.Context, w http.ResponseWrite
 	}
 
 	return web.Respond(ctx, w, station, http.StatusOK)
-}
-
-// Update decodes the body of a request to update an existing station. The ID
-// of the station is part of the request URL.
-func (st *StationType) AdjustStation(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	id := chi.URLParam(r, "id")
-
-	var update station_type.UpdateStation
-	if err := web.Decode(r, &update); err != nil {
-		return errors.Wrap(err, "decoding station update")
-	}
-
-	if err := station_type.AdjustStation(ctx, st.db, id, update, time.Now()); err != nil {
-		switch err {
-		case station_type.ErrStationNotFound:
-			return web.NewRequestError(err, http.StatusNotFound)
-		case station_type.ErrInvalidID:
-			return web.NewRequestError(err, http.StatusBadRequest)
-		default:
-			return errors.Wrapf(err, "updating station %q", id)
-		}
-	}
-
-	return web.Respond(ctx, w, nil, http.StatusNoContent)
 }

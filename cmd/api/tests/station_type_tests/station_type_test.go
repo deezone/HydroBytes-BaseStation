@@ -76,7 +76,7 @@ func (st *StationTypeTests) List(t *testing.T) {
 		{
 			"id":           "a2b0639f-2cc6-44b8-b97b-15d69dbb511e",
 			"name":         "Base",
-			"description":  "Coordinator for all station types - monitor, command and control. Access point to public Intenet.",
+			"description":  "Coordinator for all station types - monitor, command and control. Access point to public Internet.",
 			"stations":     float64(1),
 			"date_created": "2021-01-01T00:00:01.000001Z",
 			"date_updated": "2021-01-01T00:00:01.000001Z",
@@ -84,7 +84,7 @@ func (st *StationTypeTests) List(t *testing.T) {
 		{
 			"id":           "72f8b983-3eb4-48db-9ed0-e45cc6bd716b",
 			"name":         "Water",
-			"description":  "Management of water resources. Controls water levels in resavour and impliments irrigation.",
+			"description":  "Management of water resources. Controls water levels in reservoir and implements irrigation.",
 			"stations":     float64(1),
 			"date_created": "2021-01-01T00:00:02.000001Z",
 			"date_updated": "2021-01-01T00:00:02.000001Z",

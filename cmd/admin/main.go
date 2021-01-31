@@ -80,7 +80,7 @@ func run() error {
 
 	var err error
 	switch cfg.Args.Num(0) {
-	case "accountAdd":
+	case "adminAdd":
 		// name, password
 		err = adminAdd(dbConfig, cfg.Args.Num(1), cfg.Args.Num(2))
 	case "keygen":

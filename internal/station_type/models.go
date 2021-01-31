@@ -44,6 +44,7 @@ type UpdateStationType struct {
 type Station struct {
 	Id            string    `db:"id"              json:"id"`
 	StationTypeId string    `db:"station_type_id" json:"station_type_id"`
+	AccountId     string    `db:"account_id"      json:"account_id"`
 	Name          string    `db:"name"            json:"name"`
 	Description   string    `db:"description"     json:"description"`
 	LocationX     int       `db:"location_x"      json:"location_x"`

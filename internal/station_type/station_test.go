@@ -8,6 +8,8 @@ import (
 	"time"
 
 	// Internal packages
+	"github.com/deezone/HydroBytes-BaseStation/internal/account"
+	"github.com/deezone/HydroBytes-BaseStation/internal/platform/auth"
 	"github.com/deezone/HydroBytes-BaseStation/internal/station_type"
 	"github.com/deezone/HydroBytes-BaseStation/internal/tests"
 )
@@ -17,8 +19,25 @@ func TestStation(t *testing.T) {
 	defer teardown()
 
 	now := time.Date(2019, time.January, 1, 0, 0, 0, 0, time.UTC)
-
 	ctx := context.Background()
+
+	na := account.NewAccount{
+		Name:            "testAmin",
+		Password:        "testAdminPassword",
+		PasswordConfirm: "testAdminPassword",
+		Roles:           []string{auth.RoleAdmin, auth.RoleStation},
+	}
+
+	a, err := account.Create(ctx, db, na, time.Now())
+	if err != nil {
+		t.Fatalf("adding test admin account: %s", err)
+	}
+
+	claims := auth.NewClaims(
+		a.Id,
+		[]string{auth.RoleAdmin, auth.RoleStation},
+		now, time.Hour,
+	)
 
 	// Create two station types to work with.
 	newStationTypeOne := station_type.NewStationType{
@@ -50,7 +69,7 @@ func TestStation(t *testing.T) {
 			LocationY: 6,
 		}
 
-		s, err := station_type.AddStation(ctx, db, ns, stationTypeOne.Id, now)
+		s, err := station_type.AddStation(ctx, db, claims, ns, stationTypeOne.Id, now)
 		if err != nil {
 			t.Fatalf("adding test station one: %s", err)
 		}
@@ -64,11 +83,11 @@ func TestStation(t *testing.T) {
 		updatedTime := time.Date(2019, time.January, 1, 1, 1, 1, 0, time.UTC)
 
 		// Invalid uuid
-		if err := station_type.AdjustStation(ctx, db, "123abc", update, updatedTime); err == nil {
+		if err := station_type.AdjustStation(ctx, db, claims,  "123abc", update, updatedTime); err == nil {
 			t.Fatalf("updating invalid station: %s", err)
 		}
 
-		if err := station_type.AdjustStation(ctx, db, s.Id, update, updatedTime); err != nil {
+		if err := station_type.AdjustStation(ctx, db, claims, s.Id, update, updatedTime); err != nil {
 			t.Fatalf("updating station: %s", err)
 		}
 

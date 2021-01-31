@@ -61,7 +61,6 @@ func API(db *sqlx.DB, log *log.Logger, authenticator *auth.Authenticator) http.H
 		)
 		app.Handle(http.MethodPut,    "/v1/station/{id}",               st.AdjustStation,
 			mid.Authenticate(authenticator),
-			mid.HasRole(auth.RoleAdmin),
 		)
 		app.Handle(http.MethodDelete, "/v1/station/{id}",               st.DeleteStation,
 			mid.Authenticate(authenticator),

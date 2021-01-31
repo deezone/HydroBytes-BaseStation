@@ -17,9 +17,6 @@ var (
 	// ErrNotFound is used when a specific StationType is requested but does not exist.
 	ErrNotFound = errors.New("station type not found")
 
-	// ErrStationNotFound is used when a specific Station is requested but does not exist.
-	ErrStationNotFound = errors.New("station not found")
-
 	// ErrInvalidID is used when an invalid UUID is provided.
 	ErrInvalidID = errors.New("ID is not in its proper UUID format")
 )
