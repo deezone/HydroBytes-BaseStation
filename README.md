@@ -156,3 +156,6 @@ ok  	github.com/deezone/HydroBytes-BaseStation/cmd/api/tests/station_type_tests	
 >  go test ./cmd/api/tests/account_tests
 ok  	github.com/deezone/HydroBytes-BaseStation/cmd/api/tests/account_tests	4.372s
 ```
+
+#### Tracing
+- http://localhost:9411/zipkin/
