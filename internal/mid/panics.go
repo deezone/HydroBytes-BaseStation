@@ -30,7 +30,7 @@ func Panics(log *log.Logger) web.Middleware {
 			// to be shutdown gracefully.
 			v, ok := ctx.Value(web.KeyValues).(*web.Values)
 			if !ok {
-				return errors.New("web value missing from context")
+				return web.NewShutdownError("web value missing from context")
 			}
 
 			// Defer a function to recover from a panic and set the err return
