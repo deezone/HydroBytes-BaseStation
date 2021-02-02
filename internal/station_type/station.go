@@ -29,7 +29,7 @@ var (
 // AddStation adds a station of a specific StationType.
 func AddStation(ctx context.Context, db *sqlx.DB, account auth.Claims, ns NewStation, stationTypeID string, now time.Time) (*Station, error) {
 
-	ctx, span := trace.StartSpan(ctx, "internal.station.AddStation")
+	ctx, span := trace.StartSpan(ctx, "station.AddStation")
 	defer span.End()
 
 	s := Station{
@@ -70,10 +70,10 @@ func AddStation(ctx context.Context, db *sqlx.DB, account auth.Claims, ns NewSta
 // invalid or does not reference an existing Station.
 func AdjustStation(ctx context.Context, db *sqlx.DB, account auth.Claims, id string, update UpdateStation, now time.Time) error {
 
-	ctx, span := trace.StartSpan(ctx, "internal.station.AdjustStation")
+	ctx, span := trace.StartSpan(ctx, "station.AdjustStation")
 	defer span.End()
 
-	s, err := RetrieveStation(ctx, db, id)
+	s, err := GetStation(ctx, db, id)
 	if err != nil {
 		return err
 	}
@@ -123,7 +123,7 @@ func AdjustStation(ctx context.Context, db *sqlx.DB, account auth.Claims, id str
 // DeleteStation removes the station identified by a given ID.
 func DeleteStation(ctx context.Context, db *sqlx.DB, id string) error {
 
-	ctx, span := trace.StartSpan(ctx, "internal.station.DeleteStation")
+	ctx, span := trace.StartSpan(ctx, "station.DeleteStation")
 	defer span.End()
 
 	// Validate id is a valid uuid
@@ -143,7 +143,7 @@ func DeleteStation(ctx context.Context, db *sqlx.DB, id string) error {
 // ListStations gives all Stations for a StationType.
 func ListStations(ctx context.Context, db *sqlx.DB, stationTypeID string) ([]Station, error) {
 
-	ctx, span := trace.StartSpan(ctx, "internal.station.ListStations")
+	ctx, span := trace.StartSpan(ctx, "station.ListStations")
 	defer span.End()
 
 	stations := []Station{}
@@ -168,10 +168,10 @@ func ListStations(ctx context.Context, db *sqlx.DB, stationTypeID string) ([]Sta
 	return stations, nil
 }
 
-// Retrieve gets a specific Station from the database.
-func RetrieveStation(ctx context.Context, db *sqlx.DB, id string) (*Station, error) {
+// GetStation gets a specific Station from the database.
+func GetStation(ctx context.Context, db *sqlx.DB, id string) (*Station, error) {
 
-	ctx, span := trace.StartSpan(ctx, "internal.station.RetrieveStation")
+	ctx, span := trace.StartSpan(ctx, "station.RetrieveStation")
 	defer span.End()
 
     if _, err := uuid.Parse(id); err != nil {
