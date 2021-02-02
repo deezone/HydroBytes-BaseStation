@@ -14,7 +14,12 @@ import (
 func Respond(ctx context.Context, w http.ResponseWriter, data interface{}, statusCode int) error {
 
 	// Set the status code for the request logger middleware.
-	v := ctx.Value(KeyValues).(*Values)
+	// If the context is missing this value, request the service
+	// to be shutdown gracefully.
+	v, ok := ctx.Value(KeyValues).(*Values)
+	if !ok {
+		return NewShutdownError("web value missing from context")
+	}
 	v.StatusCode = statusCode
 
 	// In the case of Updates there will be no content to respond with
