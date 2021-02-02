@@ -168,6 +168,11 @@ func run() error {
 	// =========================================================================
 	// Start API Service
 
+	// Make a channel to listen for an interrupt or terminate signal from the OS.
+	// Use a buffered channel because the signal package requires it.
+	shutdown := make(chan os.Signal, 1)
+	signal.Notify(shutdown, os.Interrupt, syscall.SIGTERM)
+
 	/**
 	 * Convert the ListStationTypes function to a type that implements http.Handler
 	 * See https://education.ardanlabs.com/courses/take/ultimate-syntax/lessons/13570357-type-conversions for details
@@ -183,7 +188,7 @@ func run() error {
 	 */
 	api := http.Server{
 		Addr:         cfg.Web.Address,
-		Handler:      handlers.API(db, log, authenticator),
+		Handler:      handlers.API(shutdown, db, log, authenticator),
 		ReadTimeout:  cfg.Web.ReadTimeout,
 		WriteTimeout: cfg.Web.WriteTimeout,
 	}
@@ -199,16 +204,6 @@ func run() error {
 		serverErrors <- api.ListenAndServe()
 	}()
 
-	/**
-	 * Make a channel to listen for an interrupt or terminate signal from the OS. Use a buffered channel because the
-	 * signal package requires it. Note the value of "1", this limits the capacity to one to prevent processes from
-	 * staying alive if more than one thread is added to the channel which would prevent termination.
-	 *
-	 * Listening for os.Interrupt and syscall.SIGTERM events.
-	 */
-	shutdown := make(chan os.Signal, 1)
-	signal.Notify(shutdown, os.Interrupt, syscall.SIGTERM)
-
 	// =========================================================================
 	// Shutdown
 
@@ -218,8 +213,8 @@ func run() error {
 	case err := <-serverErrors:
 		return errors.Wrap(err, "starting server")
 
-	case <-shutdown:
-		log.Println("main : Start shutdown")
+	case sig := <-shutdown:
+		log.Printf("main : %v : Start shutdown", sig)
 
 		/**
 		 * Give outstanding requests a deadline for completion. Context defines the Context type, which carries
@@ -237,7 +232,11 @@ func run() error {
 			err = api.Close()
 		}
 
-		if err != nil {
+		// Log the status of this shutdown.
+		switch {
+		case sig == syscall.SIGSTOP:
+			return errors.New("integrity issue caused shutdown")
+		case err != nil:
 			return errors.Wrap(err, "could not stop server gracefully")
 		}
 	}
