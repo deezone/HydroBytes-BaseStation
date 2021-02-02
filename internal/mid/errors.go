@@ -9,8 +9,6 @@ import (
 	// Internal packages
 	"github.com/deezone/HydroBytes-BaseStation/internal/platform/web"
 
-	// Third-party packages
-	"github.com/pkg/errors"
 	"go.opencensus.io/trace"
 )
 
@@ -27,9 +25,11 @@ func Errors(log *log.Logger) web.Middleware {
 			ctx, span := trace.StartSpan(ctx, "internal.mid.Errors")
 			defer span.End()
 
+			// If the context is missing this value, request the service
+			// to be shutdown gracefully.
 			v, ok := ctx.Value(web.KeyValues).(*web.Values)
 			if !ok {
-				return errors.New("web value missing from context")
+				return web.NewShutdownError("web value missing from context")
 			}
 
 			// Run the handler chain and catch any propagated error.
@@ -42,6 +42,12 @@ func Errors(log *log.Logger) web.Middleware {
 				if err := web.RespondError(ctx, w, err); err != nil {
 					return err
 				}
+
+				// If we receive the shutdown err we need to return it
+				// back to the base handler to shutdown the service.
+			    if ok := web.IsShutdown(err); ok {
+			        return err
+			    }
 			}
 
 			// Return nil to indicate the error has been handled.

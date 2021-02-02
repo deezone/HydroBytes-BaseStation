@@ -32,12 +32,12 @@ func TestStationType(t *testing.T) {
 	}
 
 	// Invalid uuid
-	_, err = station_type.Retrieve(ctx, db, "abc123")
+	_, err = station_type.Get(ctx, db, "abc123")
 	if err == nil {
 		t.Fatalf("getting invalid uuid station type abc123: %s", err)
 	}
 
-	st1, err := station_type.Retrieve(ctx, db, st0.Id)
+	st1, err := station_type.Get(ctx, db, st0.Id)
 	if err != nil {
 		t.Fatalf("getting station type p0: %s", err)
 	}
@@ -61,7 +61,7 @@ func TestStationType(t *testing.T) {
 		t.Fatalf("updating station type st0: %s", err)
 	}
 
-	saved, err := station_type.Retrieve(ctx, db, st0.Id)
+	saved, err := station_type.Get(ctx, db, st0.Id)
 	if err != nil {
 		t.Fatalf("getting station type st0: %s", err)
 	}
@@ -90,7 +90,7 @@ func TestStationType(t *testing.T) {
 	}
 
 	// Attempt to retrieve deleted station type
-	_, err = station_type.Retrieve(ctx, db, st0.Id)
+	_, err = station_type.Get(ctx, db, st0.Id)
 	if err == nil {
 		t.Fatalf("getting deleted station type st0: %s", err)
 	}

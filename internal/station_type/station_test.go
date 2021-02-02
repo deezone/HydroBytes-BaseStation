@@ -92,13 +92,13 @@ func TestStation(t *testing.T) {
 		}
 
 		// Invalid uuid
-		_, err = station_type.RetrieveStation(ctx, db, "123abc")
+		_, err = station_type.GetStation(ctx, db, "123abc")
 		if err == nil {
 			t.Fatalf("getting invalid station: %s", err)
 		}
 
 
-		actual, err := station_type.RetrieveStation(ctx, db, s.Id)
+		actual, err := station_type.GetStation(ctx, db, s.Id)
 		if err != nil {
 			t.Fatalf("getting station: %s", err)
 		}
