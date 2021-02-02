@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 
@@ -29,8 +30,9 @@ func TestStationType(t *testing.T) {
 	test := tests.New(t)
 	defer test.Teardown()
 
+	shutdown := make(chan os.Signal, 1)
 	stationTypeTests := StationTypeTests{
-		app:        handlers.API(test.Db, test.Log, test.Authenticator),
+		app:        handlers.API(shutdown, test.Db, test.Log, test.Authenticator),
 		adminToken: test.Token("Admin", "gophers"),
 	}
 

@@ -26,7 +26,7 @@ var (
 // fields like ID and DateCreated populated.
 func Create(ctx context.Context, db *sqlx.DB, nst NewStationType, now time.Time) (*StationType, error) {
 
-	ctx, span := trace.StartSpan(ctx, "internal.station_type.Create")
+	ctx, span := trace.StartSpan(ctx, "station_type.Create")
 	defer span.End()
 
 	st := StationType{
@@ -60,7 +60,7 @@ func Create(ctx context.Context, db *sqlx.DB, nst NewStationType, now time.Time)
 // Delete removes the station type identified by a given ID.
 func Delete(ctx context.Context, db *sqlx.DB, id string) error {
 
-	ctx, span := trace.StartSpan(ctx, "internal.station_type.Delete")
+	ctx, span := trace.StartSpan(ctx, "station_type.Delete")
 	defer span.End()
 
 	// Validate id is a valid uuid
@@ -80,7 +80,7 @@ func Delete(ctx context.Context, db *sqlx.DB, id string) error {
 // List gets all StationType from the database.
 func List(ctx context.Context, db *sqlx.DB) ([]StationType, error) {
 
-	ctx, span := trace.StartSpan(ctx, "internal.station_type.List")
+	ctx, span := trace.StartSpan(ctx, "station_type.List")
 	defer span.End()
 
 	station_type := []StationType{}
@@ -104,10 +104,10 @@ func List(ctx context.Context, db *sqlx.DB) ([]StationType, error) {
 	return station_type, nil
 }
 
-// Retrieve gets a specific StationType and all the stations of that type from the database.
-func Retrieve(ctx context.Context, db *sqlx.DB, id string) (*StationType, error) {
+// Get finds the product identified by a given ID.
+func Get(ctx context.Context, db *sqlx.DB, id string) (*StationType, error) {
 
-	ctx, span := trace.StartSpan(ctx, "internal.station_type.Retrieve")
+	ctx, span := trace.StartSpan(ctx, "station_type.Get")
 	defer span.End()
 
 	if _, err := uuid.Parse(id); err != nil {
@@ -144,10 +144,10 @@ func Retrieve(ctx context.Context, db *sqlx.DB, id string) (*StationType, error)
 // invalid or does not reference an existing StationType.
 func Update(ctx context.Context, db *sqlx.DB, id string, update UpdateStationType, now time.Time) error {
 
-	ctx, span := trace.StartSpan(ctx, "internal.station_type.Update")
+	ctx, span := trace.StartSpan(ctx, "station_type.Update")
 	defer span.End()
 
-	st, err := Retrieve(ctx, db, id)
+	st, err := Get(ctx, db, id)
 	if err != nil {
 		return err
 	}

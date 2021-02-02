@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	// Internal packages
@@ -17,8 +18,9 @@ func TestAccount(t *testing.T) {
 	test := tests.New(t)
 	defer test.Teardown()
 
+	shutdown := make(chan os.Signal, 1)
 	ut := AccountTests{
-		app:        handlers.API(test.Db, test.Log, test.Authenticator),
+		app:        handlers.API(shutdown, test.Db, test.Log, test.Authenticator),
 		adminToken: test.Token("Admin", "gophers"),
 	}
 
