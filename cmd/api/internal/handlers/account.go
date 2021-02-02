@@ -32,7 +32,7 @@ func (a *Account) Token(ctx context.Context, w http.ResponseWriter, r *http.Requ
 
 	v, ok := ctx.Value(web.KeyValues).(*web.Values)
 	if !ok {
-		return errors.New("web value missing from context")
+		return web.NewShutdownError("web value missing from context")
 	}
 
 	name, pass, ok := r.BasicAuth()

@@ -96,7 +96,7 @@ func (st *StationType) Retrieve(ctx context.Context, w http.ResponseWriter, r *h
 
 	id := chi.URLParam(r, "id")
 
-	stationTypes, err := station_type.Retrieve(ctx, st.db, id)
+	stationTypes, err := station_type.Get(ctx, st.db, id)
 	if err != nil {
 		switch err {
 		case station_type.ErrNotFound:
@@ -248,7 +248,7 @@ func (st *StationType) RetrieveStation(ctx context.Context, w http.ResponseWrite
 
 	id := chi.URLParam(r, "id")
 
-	station, err := station_type.RetrieveStation(ctx, st.db, id)
+	station, err := station_type.GetStation(ctx, st.db, id)
 	if err != nil {
 		switch err {
 		case station_type.ErrStationNotFound:
